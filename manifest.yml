@@ -1,19 +1,17 @@
-version: '3.0'
+version: '4.0'
 description: Test manifest
-repository: https://github.com/
-hydraVersion: "4"
 
 typegen:
+  outDir: src/types
   metadata:
-    source: wss://kusama-rpc.polkadot.io/
+    blockHash: '0x04f8086e965d799c458f60e310819e3a3e7e5f287d9e9bd620eab7cd592b097c'
   events:
     - balances.Transfer
   calls:
     - timestamp.set
-  outDir: chain
 
 mappings:
-  mappingsModule: mappings
+  mappingsModule: lib/mappings
   eventHandlers:
     - event: balances.Transfer
       handler: balancesTransfer

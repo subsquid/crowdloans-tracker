@@ -1,7 +1,6 @@
-import {Resolver, ObjectType, Field, Query} from "type-graphql"
-import {InjectManager} from "typeorm-typedi-extensions"
-import {EntityManager} from "typeorm"
-import {HistoricalBalance} from "../generated/model"
+import {Field, ObjectType, Query, Resolver} from "type-graphql"
+import type {EntityManager} from "typeorm"
+import {HistoricalBalance} from "./generated/model"
 
 
 @ObjectType()
@@ -18,12 +17,13 @@ export class Hello {
 @Resolver()
 export class HelloResolver {
   constructor(
-    @InjectManager() private db: EntityManager
+    private tx: () => Promise<EntityManager>
   ) {}
 
   @Query(() => Hello)
   async hello(): Promise<Hello> {
-    let count = await this.db.getRepository(HistoricalBalance).createQueryBuilder().getCount()
+    const tx = await this.tx()
+    let count = await tx.getRepository(HistoricalBalance).count()
     return new Hello(`Hello, we've seen ${count} transfers!`)
   }
 }

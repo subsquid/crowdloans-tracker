@@ -34,11 +34,15 @@ npm run query-node:start
 
 Hydra tools expect a certain directory layout:
 
-* `generated` - model/server definitions created by `codegen`. Do not alter the contents of this directory manually.
-* `server-extension` - a place for custom data models and resolvers defined via `*.model.ts` and `*.resolver.ts` files.
-* `chain` - data type definitions for chain events and extrinsics created by `typegen`.
-* `mappings` - mapping module.
+* `src/generated` - model/server definitions created by `codegen`. Do not alter the contents of this directory manually.
+* `src/server-extension` - module with custom `type-graphql` based resolvers
+* `src/types` - data type definitions for chain events and extrinsics created by `typegen`.
+* `src/mappings` - mapping module.
+* `lib` - compiled js files. The structure of this directory must reflect `src`.
 * `.env` - hydra tools are heavily driven by environment variables defined here or supplied by a shell.
+
+If you do not plan to extend GraphQl server you can delete `server-extension` module and then remove 
+`type-graphql` and `class-validator` dependencies.
 
 ## Development flow
 
@@ -70,7 +74,7 @@ To generate new type definitions for chain events and extrinsics:
 # Review typegen section of manifest.yml (https://docs.subsquid.io/hydra-typegen)
 
 # Delete old definitions
-rm -rf chain
+rm -rf src/types
 
 # Run typegen tool
 npm run typegen
@@ -85,4 +89,4 @@ Have a look at `./indexer/docker-compose.yml` for an example of how you can set 
 
 ## Misc
 
-For more details, please checkout https://docs.subsquid.io.
+For more details, please check out https://docs.subsquid.io.
