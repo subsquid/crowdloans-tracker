@@ -4,7 +4,7 @@
   "scripts": {
     "typegen": "hydra-typegen typegen manifest.yml",
     "codegen": "hydra-cli codegen",
-    "build": "tsc",
+    "build": "rm -rf lib && tsc",
     "db:create": "hydra-cli db:create",
     "db:drop": "hydra-cli db:drop",
     "db:create-migration": "hydra-cli db:create-migration",
