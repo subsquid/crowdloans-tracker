@@ -3,12 +3,8 @@ description: Test manifest
 
 typegen:
   outDir: src/types
-  metadata:
-    blockHash: '0x04f8086e965d799c458f60e310819e3a3e7e5f287d9e9bd620eab7cd592b097c'
   events:
     - balances.Transfer
-  calls:
-    - timestamp.set
 
 mappings:
   mappingsModule: lib/mappings
