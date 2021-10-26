@@ -5,6 +5,22 @@ typegen:
   outDir: src/types
   events:
     - balances.Transfer
+    - registrar.Registered
+    - auctions.AuctionStarted
+    - auctions.AuctionClosed
+    - auctions.Reserved
+    - auctions.Unreserved
+    - auctions.ReserveConfiscated
+    - auctions.BidAccepted
+    - auctions.WinningOffset
+    - crowdloan.Created
+    - crowdloan.Contributed
+    - crowdloan.Withdrew
+    - crowdloan.Dissolved
+    - crowdloan.HandleBidResult
+    - crowdloan.AddedToNewRaise
+    - slots.Leased
+    - slots.NewLeasePeriod
 
 mappings:
   mappingsModule: lib/mappings
