@@ -1,4 +1,4 @@
-import { ApiPromise, WsProvider } from "@polkadot/api"
+import { ApiPromise, WsProvider } from "polkApi"
 
 let api: ApiPromise | undefined
 

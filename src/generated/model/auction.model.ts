@@ -46,4 +46,7 @@ export class Auction {
 
   @OneToMany_(() => ParachainLeases, e => e.auction)
   parachainLeases!: ParachainLeases[]
+
+  @Column_("integer", {nullable: true})
+  createdAt!: Date
 }
