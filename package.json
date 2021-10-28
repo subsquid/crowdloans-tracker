@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@polkadot/types": "^6.5.1",
+    "polkApi": "npm:@polkadot/api@^6.4.2",
     "@subsquid/openreader": "^0.2.0",
     "@subsquid/hydra-common": "5.0.0-alpha.5",
     "@subsquid/hydra-processor": "5.0.0-alpha.5",

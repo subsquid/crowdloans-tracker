@@ -2,6 +2,8 @@ version: '4.0'
 description: Test manifest
 
 typegen:
+  metadata:
+    source: wss://kusama.api.onfinality.io/ws?apikey=1c46075d-bd1e-4cc7-84a0-e19d28ae7c13
   outDir: src/types
   events:
     - balances.Transfer
@@ -25,8 +27,24 @@ typegen:
 mappings:
   mappingsModule: lib/mappings
   eventHandlers:
-    - event: balances.Transfer
-      handler: balancesTransfer
+    # - event: balances.Transfer
+    #   handler: balancesTransfer
+    - event: registrar.Registered
+      handler: handleParachainRegistration
+    # - event: auctions.AuctionStarted
+    #   handler: handleAuctionStarted
+    # - event: auctions.AuctionClosed
+    #   handler: handleAuctionClosed
+    # - event: auctions.BidAccepted
+    #   handler: handleBidAccepted
+    # - event: crowdloan.Contributed
+    #   handler: handleCrowdloanContributed
+    # - event: crowdloan.Dissolved
+    #   handler: handleCrowdloanDissolved
+    # - event: slots.NewLeasePeriod
+    #   handler: handleNewLeasePeriod
+    # - event: slots.Leased
+    #   handler: handleLeasedSlot
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:

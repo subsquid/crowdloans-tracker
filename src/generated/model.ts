@@ -1,3 +1,4 @@
+export * from "./model/historicalBalance.model"
 export * from "./model/auction.model"
 export * from "./model/account.model"
 export * from "./model/parachain.model"
