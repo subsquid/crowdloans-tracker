@@ -29,10 +29,10 @@ mappings:
   eventHandlers:
     # - event: balances.Transfer
     #   handler: balancesTransfer
-    - event: registrar.Registered
-      handler: handleParachainRegistration
-    # - event: auctions.AuctionStarted
-    #   handler: handleAuctionStarted
+    # - event: registrar.Registered
+    #   handler: handleParachainRegistration
+    - event: auctions.AuctionStarted
+      handler: handleAuctionStarted
     # - event: auctions.AuctionClosed
     #   handler: handleAuctionClosed
     # - event: auctions.BidAccepted
@@ -48,3 +48,4 @@ mappings:
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
+  range: '[	8324745, ]'
