@@ -1,7 +1,7 @@
 import { DatabaseManager, EventContext, StoreContext } from '@subsquid/hydra-common'
 import { Account, Parachain, Auction } from '../generated/model'
-import { Balances, Registrar, Auctions } from '../types'
-import { service,  } from './api'
+import {  Registrar, Auctions } from '../types'
+import { apiService } from './api'
 
 
 // export async function balancesTransfer({
@@ -76,18 +76,18 @@ export async function handleParachainRegistration({
 
   const parachain = await getOrCreate(store, Parachain, `${paraId}-${managerId.toHex()}`)
 
-  let api = await service()
-  const { deposit } = (await api.query.registrar.paras(paraId)).toJSON() || { deposit: 0 };
+  let api = await apiService()
+//   const { deposit } = (await api.query.registrar.paras(paraId)).toJSON() || { deposit: 0 };
 
-  parachain.paraId = paraId.toNumber()
-  parachain.createdAt = new Date(block.timestamp)
-  parachain.manager = managerId.toHex()
-  parachain.deposit = deposit
-  parachain.creationBlock = block.height
-  parachain.deregistered = false
+//   parachain.paraId = paraId.toNumber()
+//   parachain.createdAt = new Date(block.timestamp)
+//   parachain.manager = managerId.toHex()
+//   parachain.deposit = deposit
+//   parachain.creationBlock = block.height
+//   parachain.deregistered = false
 
-  await store.save(parachain)
-};
+//   await store.save(parachain)
+// };
 
 // export async function handleAuctionStarted({
 //   store,
@@ -119,4 +119,4 @@ export async function handleParachainRegistration({
 //   // const chronicle = await getOrCreate(store, Models.Chronicle, 'ChronicleKey')
 //   // chronicle.curAuctionId = auctionId.toString();
 //   // await store.save(chronicle);
-// };
+};

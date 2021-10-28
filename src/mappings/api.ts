@@ -1,9 +1,9 @@
-const{ ApiPromise, WsProvider } = require('polkApi')
+import { ApiPromise, WsProvider } from "@polkadot/api"
 
-export async function service(): Promise<any> {
-    const provider = new WsProvider('wss://kusama-rpc.polkadot.io/')
-    // console.log(" provider ::::: ",provider)
-    const api = await ApiPromise.create({ provider })
-    // console.log(" api ::::: ",api)
+let api: ApiPromise | undefined
+
+export const apiService =  async () => {
+    if (api) return api;
+    api = await ApiPromise.create({ provider: new WsProvider('wss://kusama-rpc.polkadot.io/') })
     return api
 }

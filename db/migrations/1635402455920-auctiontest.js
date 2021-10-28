@@ -1,7 +1,7 @@
 const { MigrationInterface, QueryRunner } = require("typeorm");
 
-module.exports = class tesstauctions1635333662972 {
-    name = 'tesstauctions1635333662972'
+module.exports = class auctiontest1635402455920 {
+    name = 'auctiontest1635402455920'
 
     async up(queryRunner) {
         await queryRunner.query(`CREATE TABLE "account" ("id" character varying NOT NULL, "is_funded" boolean NOT NULL, CONSTRAINT "PK_54115ee388cdb6d86bb4bf5b2ea" PRIMARY KEY ("id"))`);
@@ -25,7 +25,7 @@ module.exports = class tesstauctions1635333662972 {
         await queryRunner.query(`CREATE INDEX "IDX_9e594e5a61c0f3cb25679f6ba8" ON "bid" ("auction_id") `);
         await queryRunner.query(`CREATE INDEX "IDX_930058fc447bce976650cf08f6" ON "bid" ("parachain_id") `);
         await queryRunner.query(`CREATE INDEX "IDX_1d89857ddf5ad51e46e929c86b" ON "bid" ("fund_id") `);
-        await queryRunner.query(`CREATE TABLE "auction" ("id" character varying NOT NULL, "block_num" integer NOT NULL, "status" text NOT NULL, "lease_start" integer, "slots_start" integer NOT NULL, "lease_end" integer, "slots_end" integer NOT NULL, "closing_start" integer NOT NULL, "closing_end" integer NOT NULL, "result_block" integer, "ongoing" boolean NOT NULL, "createed_at" integer NOT NULL, CONSTRAINT "PK_9dc876c629273e71646cf6dfa67" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "auction" ("id" character varying NOT NULL, "block_num" integer NOT NULL, "status" text NOT NULL, "lease_start" integer, "slots_start" integer NOT NULL, "lease_end" integer, "slots_end" integer NOT NULL, "closing_start" integer NOT NULL, "closing_end" integer NOT NULL, "result_block" integer, "ongoing" boolean NOT NULL, CONSTRAINT "PK_9dc876c629273e71646cf6dfa67" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "auction_parachain" ("id" character varying NOT NULL, "block_num" integer NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL, "first_slot" integer NOT NULL, "last_slot" integer NOT NULL, "auction_id" character varying NOT NULL, "parachain_id" character varying NOT NULL, CONSTRAINT "PK_f405bf3c601f7e5f97d9b1abd94" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_bcdc4b1c157f29429b97a35809" ON "auction_parachain" ("auction_id") `);
         await queryRunner.query(`CREATE INDEX "IDX_09813e8f090426a27be8f78949" ON "auction_parachain" ("parachain_id") `);
