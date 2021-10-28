@@ -3,7 +3,7 @@ description: Test manifest
 
 typegen:
   metadata:
-    source: wss://kusama.api.onfinality.io/ws?apikey=1c46075d-bd1e-4cc7-84a0-e19d28ae7c13
+    source: wss://kusama-rpc.polkadot.io/
   outDir: src/types
   events:
     - balances.Transfer
