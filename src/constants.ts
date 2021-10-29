@@ -1,0 +1,1 @@
+export const IgnoreParachainIds = [100, 110, 120, 1];

@@ -34,8 +34,8 @@ mappings:
     #   handler: handleCrowdloanContributed
     # - event: crowdloan.Dissolved
     #   handler: handleCrowdloanDissolved
-    # - event: slots.Leased
-    #   handler: handleLeasedSlot
+    - event: slots.Leased
+      handler: handleLeasedSlot
 
     #### working events
     # - event: balances.Transfer

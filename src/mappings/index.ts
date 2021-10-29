@@ -1,1 +1,2 @@
-export * from './auction';
+export * from './Auction';
+export * from './Slots';

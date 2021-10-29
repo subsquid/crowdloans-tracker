@@ -321,8 +321,3 @@
 
 
 // /*           generic functions      */
-// const isFundAddress = async (address: string) => {
-//   let api = await apiService();
-//   const hexStr = api.createType('Address', address).toHex();
-//   return Buffer.from(hexStr.slice(4, 28), 'hex').toString().startsWith('modlpy/cfund');
-// };
