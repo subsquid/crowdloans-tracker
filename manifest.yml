@@ -6,46 +6,48 @@ typegen:
     source: wss://kusama-rpc.polkadot.io/
   outDir: src/types
   events:
-    - balances.Transfer
+    # - balances.Transfer
+    - auctions.AuctionClosed
+    - auctions.BidAccepted
+    - slots.Leased
+    - crowdloan.Dissolved
+    - crowdloan.Contributed
     - registrar.Registered
     - auctions.AuctionStarted
-    - auctions.AuctionClosed
-    - auctions.Reserved
-    - auctions.Unreserved
-    - auctions.ReserveConfiscated
-    - auctions.BidAccepted
-    - auctions.WinningOffset
-    - crowdloan.Created
-    - crowdloan.Contributed
-    - crowdloan.Withdrew
-    - crowdloan.Dissolved
-    - crowdloan.HandleBidResult
-    - crowdloan.AddedToNewRaise
-    - slots.Leased
     - slots.NewLeasePeriod
+    # - auctions.Reserved
+    # - auctions.Unreserved
+    # - auctions.ReserveConfiscated
+    # - auctions.WinningOffset
+    # - crowdloan.Created
+    # - crowdloan.Withdrew
+    # - crowdloan.HandleBidResult
+    # - crowdloan.AddedToNewRaise
 
 mappings:
   mappingsModule: lib/mappings
   eventHandlers:
+    # - event: auctions.AuctionClosed
+    #   handler: handleAuctionClosed
+    # - event: auctions.BidAccepted
+    #   handler: handleBidAccepted
+    # - event: crowdloan.Contributed
+    #   handler: handleCrowdloanContributed
+    # - event: crowdloan.Dissolved
+    #   handler: handleCrowdloanDissolved
+    - event: slots.Leased
+      handler: handleLeasedSlot
+
+    #### working events
     # - event: balances.Transfer
     #   handler: balancesTransfer
     # - event: registrar.Registered
     #   handler: handleParachainRegistration
-    - event: auctions.AuctionStarted
-      handler: handleAuctionStarted
-    - event: auctions.AuctionClosed
-      handler: handleAuctionClosed
-    - event: auctions.BidAccepted
-      handler: handleBidAccepted
-    - event: crowdloan.Contributed
-      handler: handleCrowdloanContributed
-    - event: crowdloan.Dissolved
-      handler: handleCrowdloanDissolved
-    - event: slots.NewLeasePeriod
-      handler: handleNewLeasePeriod
-    - event: slots.Leased
-      handler: handleLeasedSlot
+    # - event: auctions.AuctionStarted
+    #   handler: handleAuctionStarted
+    # - event: slots.NewLeasePeriod
+      # handler: handleNewLeasePeriod
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  range: '[ 9807200, ]'
+  range: '[ 9535356, ]'

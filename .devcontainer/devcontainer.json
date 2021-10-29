@@ -35,7 +35,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "npm install",
+	"postCreateCommand": "yarn install",
 
 	// setting up env variable
 	// "containerEnv": {

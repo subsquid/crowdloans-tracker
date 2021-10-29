@@ -1,4 +1,4 @@
-// export * from './Balances'
+export * from './Balances'
 export * from './Registrar'
 export * from './Slots'
 export * from './Auctions'
