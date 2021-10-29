@@ -6,7 +6,6 @@ typegen:
     source: wss://kusama-rpc.polkadot.io/
   outDir: src/types
   events:
-    # - balances.Transfer
     - auctions.AuctionClosed
     - auctions.BidAccepted
     - slots.Leased
@@ -15,14 +14,14 @@ typegen:
     - registrar.Registered
     - auctions.AuctionStarted
     - slots.NewLeasePeriod
-    # - auctions.Reserved
-    # - auctions.Unreserved
-    # - auctions.ReserveConfiscated
-    # - auctions.WinningOffset
-    # - crowdloan.Created
-    # - crowdloan.Withdrew
-    # - crowdloan.HandleBidResult
-    # - crowdloan.AddedToNewRaise
+    - auctions.Reserved
+    - auctions.Unreserved
+    - auctions.ReserveConfiscated
+    - auctions.WinningOffset
+    - crowdloan.Created
+    - crowdloan.Withdrew
+    - crowdloan.HandleBidResult
+    - crowdloan.AddedToNewRaise
 
 mappings:
   mappingsModule: lib/mappings
@@ -35,16 +34,16 @@ mappings:
     #   handler: handleCrowdloanContributed
     # - event: crowdloan.Dissolved
     #   handler: handleCrowdloanDissolved
-    - event: slots.Leased
-      handler: handleLeasedSlot
+    # - event: slots.Leased
+    #   handler: handleLeasedSlot
 
     #### working events
     # - event: balances.Transfer
     #   handler: balancesTransfer
     # - event: registrar.Registered
     #   handler: handleParachainRegistration
-    # - event: auctions.AuctionStarted
-    #   handler: handleAuctionStarted
+    - event: auctions.AuctionStarted
+      handler: handleAuctionStarted
     # - event: slots.NewLeasePeriod
       # handler: handleNewLeasePeriod
   extrinsicHandlers:
