@@ -26,14 +26,10 @@ typegen:
 mappings:
   mappingsModule: lib/mappings
   eventHandlers:
-    # - event: auctions.AuctionClosed
-    #   handler: handleAuctionClosed
     # - event: auctions.BidAccepted
     #   handler: handleBidAccepted
     # - event: crowdloan.Contributed
     #   handler: handleCrowdloanContributed
-    - event: crowdloan.Dissolved
-      handler: handleCrowdloanDissolved
     # - event: slots.Leased
     #   handler: handleLeasedSlot
 
@@ -46,6 +42,10 @@ mappings:
     #   handler: handleAuctionStarted
     # - event: slots.NewLeasePeriod
     #   handler: handleNewLeasePeriod
+    # - event: crowdloan.Dissolved
+      # handler: handleCrowdloanDissolved
+    # - event: auctions.AuctionClosed
+    #   handler: handleAuctionClosed
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
