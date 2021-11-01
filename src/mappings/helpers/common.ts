@@ -48,7 +48,7 @@ export async function getOrCreate<T extends {id: string}>(
     })
     if(!e){
       e = new entityConstructor({id})
-}
+    }
   const updatedItem = e
     ? updateFn
       ? updateFn(e)
@@ -62,10 +62,10 @@ export async function getOrCreate<T extends {id: string}>(
    
  await store.save(e)
   return e
-  }
+}
 
 /**
- * @shalbh add description
+ * @shalabh add description
  * @param address 
  * @returns 
  */
@@ -165,6 +165,5 @@ export const ensureFund = async (paraId: number, store: DatabaseManager, modifie
         cap === undefined ? (parseBigInt(cur.cap) as unknown as bigint) : (parseNumber(cap) as unknown as bigint),
       ...modifier
     };
-let temp : any = null
-  return getOrUpdate<Crowdloan>(store,Crowdloan, fundId, null, newValue )
+  return getOrUpdate<Crowdloan>(store, Crowdloan, fundId, newValue)
 };
