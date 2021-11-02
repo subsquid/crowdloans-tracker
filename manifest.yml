@@ -39,4 +39,4 @@ mappings:
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  range: '[ 9763005, ]'
+  # range: '[ 9763005, ]'
