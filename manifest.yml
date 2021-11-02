@@ -43,7 +43,7 @@ mappings:
     # - event: slots.NewLeasePeriod
     #   handler: handleNewLeasePeriod
     # - event: crowdloan.Dissolved
-      # handler: handleCrowdloanDissolved
+    #   handler: handleCrowdloanDissolved
     # - event: auctions.AuctionClosed
     #   handler: handleAuctionClosed
   extrinsicHandlers:
