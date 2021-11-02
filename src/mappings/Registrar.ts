@@ -1,0 +1,27 @@
+import { EventContext, StoreContext } from "@subsquid/hydra-common";
+import {  Parachain } from "../generated/model";
+import { Registrar } from "../types";
+import { apiService } from "./helpers/api";
+import { getOrCreate } from "./helpers/common";
+
+export async function handleParachainRegistration({
+  store,
+  event,
+  block,
+}: EventContext & StoreContext): Promise<void> {
+
+  const [paraId, managerId] = new Registrar.RegisteredEvent(event).params;
+
+  const parachain = await getOrCreate(store, Parachain, `${paraId}-${managerId.toString()}`);
+
+  let api = await apiService()
+  const { deposit } = (await api.query.registrar.paras(paraId)).toJSON() || { deposit: 0 };
+  parachain.paraId = paraId.toNumber();
+  parachain.createdAt = new Date(block.timestamp);
+  parachain.manager = managerId.toString();
+  parachain.deposit = deposit;
+  parachain.creationBlock = block.height;
+  parachain.deregistered = false;
+
+  await store.save(parachain);
+};
