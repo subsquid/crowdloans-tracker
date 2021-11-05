@@ -75,7 +75,7 @@ console.log(" reached here ")
 //   const fundId = await getLatestCrowdloanId(paraId.toString(), store);
 
 //   bid.id = `${block.height}-${bidderId}-${paraId}-${startSlot}-${endSlot}`;
-// ToDo: how do I get this auctionId
+// // ToDo: how do I get this auctionId
 //   bid.auction.id = auctionId.toString();
 //   bid.blockNum = block.height;
 //   bid.winningAuction = auctionId;
