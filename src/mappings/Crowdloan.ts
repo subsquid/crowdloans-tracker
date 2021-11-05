@@ -32,12 +32,10 @@ export async function handleCrowdloanContributed({
   const [contributorId, fundIdx, amount] = new typeCrowdloan.ContributedEvent(
     event
   ).params;
-  // const [contributor, fundIdx, amount] = event.data.toJSON() as [string, number, number | string];
   const amtValue = typeof amount === "string" ? parseNumber(amount) : amount;
   const { id, paraId } = await ensureParachain(fundIdx.toNumber(), store);
 
-  const res = await ensureFund(paraId, store);
-  const fund = await fetchCrowdloan(paraId) as any;
+  const crowdLoanData = await ensureFund(paraId, store);
   const parachainId = await getParachainId(paraId) as any;
   const parachain = await store.find(Parachain, {
     where: { id: parachainId },
@@ -45,24 +43,18 @@ export async function handleCrowdloanContributed({
   });
 
   
-    console.info(
-      `unable to find the contribution for parachain:  ${parachain}`
-    );
+    console.info( `unable to find the contribution for parachain:  ${parachain}`);
     const contribution = new Contribution({
-      // id: `${blockNum}-${idx}`,
       id,
       account: contributorId.toHex(), 
       parachain: parachain[0],
-      fund,
+      fund: crowdLoanData,
       amount: BigInt(amtValue.toString()),
-      createdAt: res.createdAt,
+      createdAt: crowdLoanData.createdAt,
       blockNum,
     });
 
-  console.log(" final contribution ::: ", contribution);
   const savedContributuion = await store.save(contribution);
-  console.log(" savedContributuion ::: ", savedContributuion);
-
 }
 
 
