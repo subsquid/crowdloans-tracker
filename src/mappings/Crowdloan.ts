@@ -14,38 +14,65 @@ export async function handleCrowdloanContributed({
   event,
   block,
   extrinsic
-}: EventContext & StoreContext): Promise<void> {
+}: EventContext & StoreContext): Promise<void> 
+{
+  const  idx  = event.id;
+const timestamp = block.timestamp;
+
+  const blockNum = block.height
   const [contributorId, fundIdx, amount] = new typeCrowdloan.ContributedEvent(event).params
-  const amtValue = amount.toNumber()
-  // const contribution = await ensureParachain(fundIdx, store)
+  // const [contributor, fundIdx, amount] = event.data.toJSON() as [string, number, number | string];
+  const amtValue = typeof amount === 'string' ? parseNumber(amount) : amount;
+ await ensureParachain(fundIdx.toNumber(), store);
 
+   const res  =await ensureFund(fundIdx.toNumber(), store);
+console.log(res)
+  // const contribution = new Contribution({
+  //   id: `${blockNum}-${idx}`,
+  //   account: contributor,
+  //   parachainId,
+  //   fundId,
+  //   amount: amtValue,
+  //   createdAt,
+  //   blockNum
+  // });
 
-  const data = await ensureParachain(fundIdx.toNumber(), store);
-
-
-  const paradata = await ensureFund(fundIdx.toNumber(), store, data);
-
-  // const contribution = await store.find(Contribution, {
-  //   where: {blockNum: block.height},
-  //   // where: {id: `${block.height}-${event.id}`},
-  //   take: 1
-  // })
-  // let api = await apiService();
-  // const parachain = (await api.query.registrar.paras(fundIdx)).toJSON() as any;
-  // if(contribution.length != 0) {
-  //   contribution[0].account = contributorId.toHex();
-  //   // ToDo: why we are not getting id in parachain & fund variable
-  //   contribution[0].fund.id = fundIdx.toString();
-  //   contribution[0].parachain.id = parachain.id;
-  //   contribution[0].amount = BigInt(amtValue);
-  //   contribution[0].createdAt = new Date(block.timestamp);
-  //   contribution[0].blockNum = block.height;
-  //   await store.save(contribution);
-  // } else {
-  //     console.info(`unable to find the contribution for parachain:  ${parachain}`)
-  // }
-
+  // logger.info(`contribution for ${JSON.stringify(contribution, null, 2)}`);
+  // await Storage.save('Contribution', contribution);
 };
+
+// {
+//   const [contributorId, fundIdx, amount] = new typeCrowdloan.ContributedEvent(event).params
+//   const amtValue = amount.toNumber()
+//   // const contribution = await ensureParachain(fundIdx, store)
+
+
+//   const data = await ensureParachain(fundIdx.toNumber(), store);
+
+
+//   const paradata = await ensureFund(fundIdx.toNumber(), store, data);
+
+//   // const contribution = await store.find(Contribution, {
+//   //   where: {blockNum: block.height},
+//   //   // where: {id: `${block.height}-${event.id}`},
+//   //   take: 1
+//   // })
+//   // let api = await apiService();
+//   // const parachain = (await api.query.registrar.paras(fundIdx)).toJSON() as any;
+//   // if(contribution.length != 0) {
+//   //   contribution[0].account = contributorId.toHex();
+//   //   // ToDo: why we are not getting id in parachain & fund variable
+//   //   contribution[0].fund.id = fundIdx.toString();
+//   //   contribution[0].parachain.id = parachain.id;
+//   //   contribution[0].amount = BigInt(amtValue);
+//   //   contribution[0].createdAt = new Date(block.timestamp);
+//   //   contribution[0].blockNum = block.height;
+//   //   await store.save(contribution);
+//   // } else {
+//   //     console.info(`unable to find the contribution for parachain:  ${parachain}`)
+//   // }
+
+// };
 
 
 export async function handleCrowdloanDissolved({

@@ -35,20 +35,20 @@ export async function getOrCreate<T extends {id: string}>(
     return e;
   }
 
-  export async function getOrUpdate<T extends {id: string}>(
+  export const getOrUpdate = async  <T>(
     store: DatabaseManager,
     entityConstructor: EntityConstructor<T>,
     id: string,
     newValues : Record<string, any>,  
-    updateFn?: (entry?: Entity) => Omit<T, 'save'>
-  ): Promise<T> {
+    updateFn?: (entry?: T) => Omit<T, 'save'>
+  ): Promise<T> => {
 
     let e:any = await store.get(entityConstructor, {
       where: { id },
     })
-    if(!e){
-      e = new entityConstructor({id})
-    }
+    // if(!e){
+    //   e = new entityConstructor({id})
+    // }
   const updatedItem = e
     ? updateFn
       ? updateFn(e)
@@ -56,6 +56,7 @@ export async function getOrCreate<T extends {id: string}>(
     : updateFn
     ? updateFn()
     : { ...newValues, id };
+  e= e || new entityConstructor({id})
   for (const property in updatedItem) {
     e[property] = updatedItem[property]
    }
@@ -86,7 +87,7 @@ export const ensureParachain = async (paraId: number, store : DatabaseManager): 
   console.info(`Fetch parachain by ${paraId}`);
   const { manager, deposit } = await fetchParachain(paraId) || {manager: '', deposit: ''};
   const parachainId = `${paraId}-${manager}`;
-  return await getOrUpdate(store, Parachain, parachainId, { id: parachainId, paraId, manager, deposit, deregistered: false });
+  return await getOrUpdate<Parachain>(store, Parachain, parachainId, { id: parachainId, paraId, manager, deposit, deregistered: false });
 };
 
 export const getIsReCreateCrowdloan = async (fundId: string, store: DatabaseManager): Promise<Boolean> => {
@@ -135,35 +136,42 @@ export const getLatestCrowdloanId = async (parachainId: string, store: DatabaseM
 export const ensureFund = async (paraId: number, store: DatabaseManager, modifier?: Record<string, any>): Promise<Crowdloan> => {
   const fund = await fetchCrowdloan(paraId);
   const parachainId = await getParachainId(paraId);
+  const parachain = await store.find(Parachain, {
+    where: {id: parachainId},
+    take: 1
+  })
   console.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
   const fundId = await getLatestCrowdloanId(parachainId, store);
   const { cap, end, trieIndex, raised, lastContribution, firstPeriod, lastPeriod, ...rest } =
     fund || ({} as CrowdloanReturn);
   console.info(`Fund detail: ${JSON.stringify(fund, null, 2)} - cap: ${cap} - raised: ${raised}`);
+  const test:any = null
 
-  const newValue =(cur: Crowdloan) => !cur
-  ? {
-      id: fundId,
-      parachainId,
-      ...rest,
-      firstSlot: firstPeriod,
-      lastSlot: lastPeriod,
-      status: CrowdloanStatus.STARTED,
-      raised: parseNumber(raised) as unknown as bigint,
-      cap: parseNumber(cap) as unknown as bigint,
-      lockExpiredBlock: end,
-      isFinished: false,
-      ...modifier
-    }
-  : {
-      ...cur,
-      raised:
-        raised === undefined
-          ? (parseBigInt(cur.raised) as unknown as bigint)
-          : (parseNumber(raised) as unknown as bigint),
-      cap:
-        cap === undefined ? (parseBigInt(cur.cap) as unknown as bigint) : (parseNumber(cap) as unknown as bigint),
-      ...modifier
-    };
-  return getOrUpdate<Crowdloan>(store, Crowdloan, fundId, newValue)
+  return getOrUpdate<Crowdloan>(store, Crowdloan, fundId,test , (cur: any) => 
+  {
+    return !cur
+      ? new Crowdloan({
+          id: fundId,
+          parachain: parachain[0],
+          ...rest,
+          firstSlot: firstPeriod,
+          lastSlot: lastPeriod,
+          status: CrowdloanStatus.STARTED,
+          raised: parseNumber(raised) as unknown as bigint,
+          cap: parseNumber(cap) as unknown as bigint,
+          lockExpiredBlock: end,
+          isFinished: false,
+          ...modifier
+        })
+      : new Crowdloan({
+          ...cur,
+          raised:
+            raised === undefined
+              ? (parseBigInt(cur.raised) as unknown as bigint)
+              : (parseNumber(raised) as unknown as bigint),
+          cap:
+            cap === undefined ? (parseBigInt(cur.cap) as unknown as bigint) : (parseNumber(cap) as unknown as bigint),
+          ...modifier
+        });
+  })
 };
