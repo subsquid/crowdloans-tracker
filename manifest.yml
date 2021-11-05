@@ -18,26 +18,26 @@ typegen:
 mappings:
   mappingsModule: lib/mappings
   eventHandlers:
-    # - event: registrar.Registered
-    #   handler: handleParachainRegistration
-    # - event: auctions.AuctionStarted
-    #   handler: handleAuctionStarted
-    # - event: slots.NewLeasePeriod
-    #   handler: handleNewLeasePeriod
-    # - event: crowdloan.Dissolved
-    #   handler: handleCrowdloanDissolved
-    # - event: auctions.AuctionClosed
-    #   handler: handleAuctionClosed
-
-    #### not working events
-    # - event: auctions.BidAccepted
-    #   handler: handleBidAccepted
+    - event: registrar.Registered
+      handler: handleParachainRegistration
+    - event: auctions.AuctionStarted
+      handler: handleAuctionStarted
+    - event: slots.NewLeasePeriod
+      handler: handleNewLeasePeriod
+    - event: crowdloan.Dissolved
+      handler: handleCrowdloanDissolved
+    - event: auctions.AuctionClosed
+      handler: handleAuctionClosed
     - event: crowdloan.Contributed
       handler: handleCrowdloanContributed
+
+    #### not working events
+    - event: auctions.BidAccepted
+      handler: handleBidAccepted
     # - event: slots.Leased
     #   handler: handleLeasedSlot
 
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  range: '[ 9962461, ]'
+  range: '[ 9678940, ]'

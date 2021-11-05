@@ -58,22 +58,46 @@ export async function handleCrowdloanContributed({
 }
 
 
+// export async function handleCrowdloanDissolved({
+//   store,
+//   event,
+//   block,
+// }: EventContext & StoreContext): Promise<void> {
+//   const [fundId] = new typeCrowdloan.DissolvedEvent(event).params;
+//   const { timestamp: createdAt } = block;
+//   const blockNum = block.height;
+//   // const [contributorId, fundIdx, amount] = new typeCrowdloan.ContributedEvent(
+//   //   event
+//   // ).params;
+//   const crowdloan = await store.find(modelCrowdloan, {
+//     where: { id: fundId.toString() },
+//     take: 1,
+//   });
+
+//   const { id, paraId } = await ensureParachain(fundId.toNumber(), store);
+
+//   const crowdLoanData = await ensureFund(paraId, store);
+
+//   crowdloan[0].status = CrowdloanStatus.DISSOLVED;
+//   crowdloan[0].isFinished = true;
+//   crowdloan[0].updatedAt = new Date(block.timestamp);
+//   crowdloan[0].dissolvedBlock = block.height;
+
+//   await store.save(crowdloan);
+// }
+
 export async function handleCrowdloanDissolved({
   store,
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
+  const { timestamp: createdAt } = block;
+  const blockNum = block.height;
   const [fundId] = new typeCrowdloan.DissolvedEvent(event).params;
-
-  const crowdloan = await store.find(modelCrowdloan, {
-    where: { id: fundId.toString() },
-    take: 1,
+  await ensureFund(fundId.toNumber(), store, {
+    status: CrowdloanStatus.DISSOLVED,
+    isFinished: true,
+    updatedAt: new Date(createdAt),
+    dissolvedBlock: blockNum
   });
-
-  crowdloan[0].status = "Dissolved";
-  crowdloan[0].isFinished = true;
-  crowdloan[0].updatedAt = new Date(block.timestamp);
-  crowdloan[0].dissolvedBlock = block.height;
-
-  await store.save(crowdloan);
-}
+};
