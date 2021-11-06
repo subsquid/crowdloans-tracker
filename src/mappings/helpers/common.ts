@@ -1,8 +1,9 @@
 import { DatabaseManager } from "@subsquid/hydra-common";
 import { Entity } from "@subsquid/openreader/dist/model";
-import { Crowdloan, CrowdloanSequence, Parachain } from "../../generated/model";
+import { CrowdloanStatus } from "../../constants";
+import { Auction, Crowdloan, CrowdloanSequence, Parachain } from "../../generated/model";
 import { apiService } from "./api";
-import { CrowdloanReturn, CrowdloanStatus, ParachainReturn } from "./types";
+import { CrowdloanReturn, ParachainReturn } from "./types";
 import {
   fetchCrowdloan,
   getParachainId,
@@ -228,3 +229,16 @@ export const ensureFund = async (
         });
   });
 };
+
+export const getAuctionsByOngoing = async (store: DatabaseManager, ongoing: boolean): Promise<Auction[] | undefined> => {
+  const records = await store.find(Auction, {
+    where: { ongoing: true }, take: 1
+  })
+  return records.map(record => Auction.create(record)) as Auction[]; 
+}
+
+export const create = (record: any) => {
+  let entity = new Auction(record.id);
+  Object.assign(entity,record);
+  return entity;
+}

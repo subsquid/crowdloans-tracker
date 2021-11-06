@@ -30,14 +30,14 @@ mappings:
       handler: handleAuctionClosed
     - event: crowdloan.Contributed
       handler: handleCrowdloanContributed
+    - event: slots.Leased
+      handler: handleSlotsLeased
 
     #### not working events
-    - event: auctions.BidAccepted
-      handler: handleBidAccepted
-    # - event: slots.Leased
-    #   handler: handleLeasedSlot
+    # - event: auctions.BidAccepted
+    #   handler: handleBidAccepted
 
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  range: '[ 9678940, ]'
+  range: '[ 9334719, ]'

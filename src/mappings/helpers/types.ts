@@ -25,11 +25,4 @@ export interface CrowdloanReturn {
   trieIndex: number;
 }
 
-export enum CrowdloanStatus {
-  RETIRING = 'Retiring',
-  DISSOLVED = 'Dissolved',
-  STARTED = 'Started',
-  WON = 'Won'
-}
-
 export type CrowdloanUpdater = keyof Crowdloan;

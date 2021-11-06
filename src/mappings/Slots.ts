@@ -1,19 +1,17 @@
 import { EventContext, StoreContext } from "@subsquid/hydra-common";
 import { IgnoreParachainIds } from "../constants";
-import { Auction, Chronicle, Crowdloan, ParachainLeases } from "../generated/model";
+import { Auction, Chronicle, Parachain, ParachainLeases } from "../generated/model";
 import { Slots } from "../types";
 import { apiService } from "./helpers/api";
 import { ensureFund, ensureParachain, getOrCreate, getOrUpdate, isFundAddress } from "./helpers/common";
-import { CrowdloanStatus } from "./helpers/types";
+import { CrowdloanStatus } from "../constants";
 import { parseNumber } from "./helpers/utils";
 
-export async function handleLeasedSlot({
+export async function handleSlotsLeased({
   store,
   event,
-  block,
-  extrinsic
+  block
 }: EventContext & StoreContext): Promise<void> {
-  const { method, section } = event;
   const blockNum = block.height;
   const [paraId, from, firstLease, leaseCount, extra, total] = new Slots.LeasedEvent(event).params;
 
@@ -25,11 +23,10 @@ export async function handleLeasedSlot({
   }
 
   const { id: parachainId } = await ensureParachain(paraId.toNumber(), store);
-  const totalUsed = parseNumber(total.toString())
-  const extraAmount = parseNumber(extra.toString())
-  console.info(
-    `Slot leased, with ${JSON.stringify({ paraId, from, firstLease, lastLease, extra, total, parachainId }, null, 2)}`
-  );
+  const totalUsed = parseNumber(total.toString());
+  const extraAmount = parseNumber(extra.toString());
+
+  console.info(`Slot leased, with ${JSON.stringify({ paraId, from, firstLease, lastLease, extra, total, parachainId }, null, 2)}`);
 
   const [ongoingAuction] = await store.find(Auction, {
     where: { ongoing: true }, take: 1
@@ -51,8 +48,9 @@ export async function handleLeasedSlot({
     })
   }
   
-const fundAddress = await isFundAddress(from.toString())
+  const fundAddress = await isFundAddress(from.toString());
   console.info(`handleSlotsLeased isFundAddress - from: ${from} - ${fundAddress}`);
+
   if (fundAddress) {
     console.info(`handleSlotsLeased update - parachain ${paraId} from Started to Won status`);
     await ensureFund(paraId.toNumber(),store, {
@@ -63,21 +61,35 @@ const fundAddress = await isFundAddress(from.toString())
       console.error(`Upsert Crowdloan failed ${err}`);
     });
   }
-
+  
   const { id: auctionId, resultBlock } = curAuction;
+
+  const parachain = await store.find(Parachain, {
+    where: { id: parachainId },
+    take: 1,
+  });
+
+  const auction = await store.find(Auction, {
+    where: { id: auctionId },
+    take: 1,
+  });
+
   console.info(`Resolved auction id ${curAuction.id}, resultBlock: ${curAuction.id}, ${curAuction.resultBlock}`);
+
   await getOrUpdate(store,ParachainLeases, `${paraId}-${auctionId || 'sudo'}-${firstLease}-${lastLease}`,{
+    id: `${paraId}-${firstLease}-${lastLease}-${auctionId || 'sudo'}`,
     paraId,
+    parachain: parachain[0],
     leaseRange: `${auctionId || 'sudo'}-${firstLease}-${lastLease}`,
-    firstLease,
+    firstLease: firstLease.toNumber(),
     lastLease,
-    latestBidAmount: totalUsed,
-    auctionId,
+    latestBidAmount: BigInt(totalUsed),
+    auction: auction[0],
     activeForAuction: auctionId || 'sudo',
     parachainId,
-    extraAmount,
-    winningAmount: totalUsed,
-    wonBidFrom: from,
+    extraAmount: BigInt(extraAmount),
+    winningAmount: BigInt(totalUsed),
+    wonBidFrom: from.toString(),
     winningResultBlock: resultBlock,
     hasWon: true
   } ).catch((err) => {
