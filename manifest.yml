@@ -19,25 +19,25 @@ mappings:
   mappingsModule: lib/mappings
   eventHandlers:
     - event: registrar.Registered
-      handler: handleParachainRegistration
+      handler: handleParachainRegistered
     - event: auctions.AuctionStarted
       handler: handleAuctionStarted
     - event: slots.NewLeasePeriod
       handler: handleNewLeasePeriod
-    - event: crowdloan.Dissolved
-      handler: handleCrowdloanDissolved
     - event: auctions.AuctionClosed
       handler: handleAuctionClosed
     - event: crowdloan.Contributed
       handler: handleCrowdloanContributed
     - event: slots.Leased
       handler: handleSlotsLeased
+    # - event: crowdloan.Dissolved
+    #   handler: handleCrowdloanDissolved
 
     #### not working events
-    # - event: auctions.BidAccepted
-    #   handler: handleBidAccepted
+    - event: auctions.BidAccepted
+      handler: handleBidAccepted
 
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  range: '[ 9334719, ]'
+  range: '[ 9007195, ]'

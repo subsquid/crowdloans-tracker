@@ -1,7 +1,13 @@
 import { DatabaseManager } from "@subsquid/hydra-common";
 import { Entity } from "@subsquid/openreader/dist/model";
 import { CrowdloanStatus } from "../../constants";
-import { Auction, Crowdloan, CrowdloanSequence, Parachain } from "../../generated/model";
+import {
+  Auction,
+  Crowdloan,
+  CrowdloanSequence,
+  Parachain,
+  ParachainLeases,
+} from "../../generated/model";
 import { apiService } from "./api";
 import { CrowdloanReturn, ParachainReturn } from "./types";
 import {
@@ -87,9 +93,7 @@ export const fetchParachain = async (
   const parachain = (
     await api.query.registrar.paras(paraId)
   ).toJSON() as unknown;
-  console.info(
-    `Fetched parachain ${paraId}: ${JSON.stringify(parachain, null, 2)}`
-  );
+
   return parachain as ParachainReturn | null;
 };
 
@@ -97,7 +101,6 @@ export const ensureParachain = async (
   paraId: number,
   store: DatabaseManager
 ): Promise<Parachain> => {
-  console.info(`Fetch parachain by ${paraId}`);
   const { manager, deposit } = (await fetchParachain(paraId)) || {
     manager: "",
     deposit: "",
@@ -124,9 +127,7 @@ export const getIsReCreateCrowdloan = async (
     fund?.status === CrowdloanStatus.DISSOLVED &&
     fund?.isFinished
   );
-  // console.info(` =======
-  // Crowdloan: ${fundId} - DissolveBlock: ${fund?.dissolvedBlock} - Status: ${fund?.status} re-create crowdloan: ${isReCreateCrowdloan}
-  // ======`);
+
   return isReCreateCrowdloan;
 };
 
@@ -153,7 +154,6 @@ export const getLatestCrowdloanId = async (
       await store.save(seq);
     }
 
-    console.info(`Crowdloan: ${parachainId} fundId curIndex: ${curIdex}`);
     return `${parachainId}-${curIdex}`;
   }
 
@@ -164,7 +164,6 @@ export const getLatestCrowdloanId = async (
     blockNum: curBlockNum.toNumber(),
   });
   await store.save(crowdloan);
-  console.info(`Crowdloan: ${parachainId} fundId: 0`);
   return `${parachainId}-0`;
 };
 
@@ -179,7 +178,7 @@ export const ensureFund = async (
     where: { id: parachainId },
     take: 1,
   });
-  // console.info(`Retrieved parachainId: ${parachainId} for paraId: ${paraId}`);
+
   const fundId = await getLatestCrowdloanId(parachainId, store);
   const {
     cap,
@@ -191,13 +190,7 @@ export const ensureFund = async (
     lastPeriod,
     ...rest
   } = fund || ({} as CrowdloanReturn);
-  // console.info(
-  //   `Fund detail: ${JSON.stringify(
-  //     fund,
-  //     null,
-  //     2
-  //   )} - cap: ${cap} - raised: ${raised}`
-  // );
+
   const test: any = null;
 
   return getOrUpdate<Crowdloan>(store, Crowdloan, fundId, test, (cur: any) => {
@@ -230,15 +223,30 @@ export const ensureFund = async (
   });
 };
 
-export const getAuctionsByOngoing = async (store: DatabaseManager, ongoing: boolean): Promise<Auction[] | undefined> => {
+export const getAuctionsByOngoing = async (
+  store: DatabaseManager,
+  ongoing: boolean
+): Promise<Auction[] | undefined> => {
   const records = await store.find(Auction, {
-    where: { ongoing: true }, take: 1
-  })
-  return records.map(record => Auction.create(record)) as Auction[]; 
+    where: { ongoing: true },
+    take: 1,
+  });
+  return records.map((record) => create(record, Auction)) as Auction[];
+};
+
+export const getByLeaseRange = async (store: DatabaseManager, leaseRange: string): Promise<ParachainLeases[] | undefined> => {
+      
+  const records = await store.find(ParachainLeases, {
+    where: { leaseRange },
+    take: 1,
+  });
+  return records.map((record: any )=> create(record, ParachainLeases));
+  
 }
 
-export const create = (record: any) => {
-  let entity = new Auction(record.id);
-  Object.assign(entity,record);
+export const create = <T>(record: any, entityConstructor: EntityConstructor<T>) => {
+  let entity = new entityConstructor(record.id);
+  Object.assign(entity, record);
   return entity;
-}
+};
+

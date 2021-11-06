@@ -1,13 +1,9 @@
-import { ObjectLiteral } from "@subsquid/hydra-common"
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, OneToMany as OneToMany_} from "typeorm"
 import {Bid} from "./bid.model"
 import {ParachainLeases} from "./parachainLeases.model"
 
 @Entity_()
 export class Auction {
-  static create(record: ObjectLiteral): Auction | PromiseLike<Auction | undefined> | undefined {
-    throw new Error("Method not implemented.")
-  }
   constructor(props?: Partial<Auction>) {
     Object.assign(this, props)
   }
