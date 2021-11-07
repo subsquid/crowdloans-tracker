@@ -28,16 +28,16 @@ export const getParachainId = async (paraId: number | ParachainReturn) => {
 };
 
 export const fetchParachain = async (paraId: number): Promise<ParachainReturn | null> => {
-    const api =await  apiService();
+  const api =await  apiService();
   const parachain = (await api.query.registrar.paras(paraId)).toJSON() as unknown;
-  console.info(`Fetched parachain ${paraId}: ${JSON.stringify(parachain, null, 2)}`);
+
   return parachain as ParachainReturn | null;
 };
 
 export const fetchCrowdloan = async (paraId: number): Promise<CrowdloanReturn | null> => {
   const api = await  apiService();
   const fund = await api.query.crowdloan.funds(paraId);
-  console.info(`Fetched crowloan ${paraId}: ${JSON.stringify(fund, null, 2)}`);
+
   return fund.toJSON() as unknown as CrowdloanReturn | null;
 };
 

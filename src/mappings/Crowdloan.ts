@@ -40,7 +40,7 @@ export async function handleCrowdloanContributed({
 export async function handleCrowdloanDissolved({
   store,
   event,
-  block,
+  block
 }: EventContext & StoreContext): Promise<void> {
   const { timestamp: createdAt } = block;
   const blockNum = block.height;
@@ -52,3 +52,14 @@ export async function handleCrowdloanDissolved({
     dissolvedBlock: blockNum,
   });
 }
+
+export async function handleCrowdloanCreated({
+  store,
+  event,
+  block
+}: EventContext & StoreContext): Promise<void> {
+  const blockNum = block.height;
+  const [fundId] = new Crowdloan.DissolvedEvent(event).params;
+  await ensureParachain(fundId.toNumber(), store);
+  const fund = await ensureFund(fundId.toNumber(), store, { blockNum });
+};
