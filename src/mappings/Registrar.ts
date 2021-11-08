@@ -9,8 +9,8 @@ export async function handleParachainRegistered({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
-
-  console.info(` ------ [Registered] Event Startd.`);
+  console.info(` ------ [Registered] Event.`);
+  
   const [paraId, managerId] = new Registrar.RegisteredEvent(event).params;
   const parachain = await getOrCreate( store, Parachain, `${paraId}-${managerId.toString()}` );
   const api = await apiService();
@@ -24,5 +24,4 @@ export async function handleParachainRegistered({
   parachain.deregistered = false;
 
   await store.save(parachain);
-  console.info(` ------ [Registered] Event Completed.`);
 }

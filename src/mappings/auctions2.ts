@@ -16,7 +16,6 @@ import {
 import { isFundAddress } from "./helpers/utils";
 
 
-
 export async function handlerEmpty () {};
 
 export async function handleAuctionStarted({
@@ -24,7 +23,7 @@ export async function handleAuctionStarted({
   event,
   block
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ Auctions AuctionStarted Event Startd.`);
+  console.info(` ------ [Auctions] [AuctionStarted] Event.`);
 
   const [auctionId, slotStart, auctionEnds] = new Auctions.AuctionStartedEvent(
     event
@@ -51,8 +50,6 @@ export async function handleAuctionStarted({
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
   await store.save(chronicle);
-
-  console.info(` ------ Auctions AuctionStarted Event Completed.`);
 }
 
 export async function handleAuctionClosed({
@@ -60,22 +57,41 @@ export async function handleAuctionClosed({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Auctions] [AuctionClosed] Event Startd.`);
+  console.info(` ------ [Auctions] [AuctionClosed] Event.`);
 
   const [auctionId] = new Auctions.AuctionClosedEvent(event).params;
   const auction = await getOrCreate(store, Auction, auctionId.toString());
 
-  auction.blockNum = block.height;
-  auction.status = "Closed";
-  auction.ongoing = false;
+  let api = await apiService();
+  const endingPeriod = api.consts.auctions.endingPeriod.toJSON() as number;
+  const periods = api.consts.auctions.leasePeriodsPerSlot.toJSON() as number;
+  const leasePeriod = api.consts.slots.leasePeriod.toJSON() as number;
+
+  await getOrUpdate(store, Auction, auctionId.toString(), {
+    id: auctionId,
+    slotsStart: leasePeriod,
+    slotsEnd: leasePeriod + periods - 1,
+    closingStart: leasePeriod,
+    closingEnd: leasePeriod + endingPeriod,
+    blockNum: block.height,
+    status: "Closed",
+    ongoing: false
+
+  });
+
+  // auction.blockNum = block.height;
+  // auction.status = "Closed";
+  // auction.ongoing = false;
+  // auction.slotsStart = leasePeriod;
+  // auction.slotsEnd = leasePeriod + periods - 1;
+  // auction.closingStart = leasePeriod;
+  // auction.closingEnd = leasePeriod + endingPeriod;
+
   await store.save(auction);
 
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
-  await store.save(chronicle);
-
-  console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
-  
+  await store.save(chronicle);  
 }
 
 
@@ -208,7 +224,7 @@ export async function handleAuctionWinningOffset ({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Auctions] [WinningOffset] Event Startd.`);
+  console.info(` ------ [Auctions] [WinningOffset] Event.`);
 
   const [auctionId, offsetBlock] = new Auctions.WinningOffsetEvent(event).params;
   const auction = await getByAuctions(store, auctionId.toString());
@@ -216,6 +232,4 @@ export async function handleAuctionWinningOffset ({
   // auction[0].resultBlock = auction.closingStart + offsetBlock.toString();
   // console.info(`Update auction ${auctionId} winning offset: ${auction.resultBlock}`);
   // await auction.save();
-
-  console.info(` ------ [Auctions] [WinningOffset] Event Completed.`);
 };

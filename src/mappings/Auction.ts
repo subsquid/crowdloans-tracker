@@ -12,7 +12,7 @@ export async function handleAuctionStarted({
   event,
   block
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Auctions] [AuctionStarted] Event Startd.`);
+  console.info(` ------ [Auctions] [AuctionStarted] Event.`);
 
   const [auctionId, slotStart, auctionEnds] = new Auctions.AuctionStartedEvent(
     event
@@ -39,8 +39,6 @@ export async function handleAuctionStarted({
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
   await store.save(chronicle);
-
-  console.info(` ------ [Auctions] [AuctionStarted] Event Completed.`);
 }
 
 export async function handleAuctionClosed({
@@ -48,7 +46,7 @@ export async function handleAuctionClosed({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Auctions] [AuctionClosed] Event Startd.`);
+  console.info(` ------ [Auctions] [AuctionClosed] Event.`);
 
   const [auctionId] = new Auctions.AuctionClosedEvent(event).params;
   const auction = await getOrCreate(store, Auction, auctionId.toString());
@@ -82,10 +80,7 @@ export async function handleAuctionClosed({
 
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
-  await store.save(chronicle);
-
-  console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
-  
+  await store.save(chronicle);  
 }
 
 export async function handleBidAccepted({
