@@ -1,16 +1,83 @@
 import { DatabaseManager, EventContext, StoreContext } from "@subsquid/hydra-common";
-import { Auction, AuctionParachain, Bid, ParachainLeases } from "../generated/model";
+import { Auction, AuctionParachain, Bid, Chronicle, ParachainLeases } from "../generated/model";
 import { Auctions } from "../types";
 import { apiService } from "./helpers/api";
 import {
   ensureFund,
   ensureParachain,
+  getByAuctionParachain,
+  getByAuctions,
   getByLeaseRange,
+  getByWinningAuction,
   getLatestCrowdloanId,
   getOrCreate,
   getOrUpdate,
 } from "./helpers/common";
 import { isFundAddress } from "./helpers/utils";
+
+
+
+export async function handlerEmpty () {};
+
+export async function handleAuctionStarted({
+  store,
+  event,
+  block
+}: EventContext & StoreContext): Promise<void> {
+  console.info(` ------ Auctions AuctionStarted Event Startd.`);
+
+  const [auctionId, slotStart, auctionEnds] = new Auctions.AuctionStartedEvent(
+    event
+  ).params;
+
+  let api = await apiService();
+  const endingPeriod = api.consts.auctions.endingPeriod.toJSON() as number;
+  const leasePeriod = api.consts.slots.leasePeriod.toJSON() as number;
+  const periods = api.consts.auctions.leasePeriodsPerSlot.toJSON() as number;
+
+  const auction = await getOrCreate(store, Auction, auctionId.toString());
+
+  auction.blockNum = block.height;
+  auction.status = "Started";
+  auction.slotsStart = slotStart.toNumber();
+  auction.slotsEnd = slotStart.toNumber() + periods - 1;
+  auction.leaseStart = slotStart.toNumber() * leasePeriod;
+  auction.leaseEnd = (slotStart.toNumber() + periods - 1) * leasePeriod;
+  auction.closingStart = auctionEnds.toNumber();
+  auction.ongoing = true;
+  auction.closingEnd = auctionEnds.toNumber() + endingPeriod;
+  await store.save(auction);
+
+  const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
+  chronicle.curAuctionId = auctionId.toString();
+  await store.save(chronicle);
+
+  console.info(` ------ Auctions AuctionStarted Event Completed.`);
+}
+
+export async function handleAuctionClosed({
+  store,
+  event,
+  block,
+}: EventContext & StoreContext): Promise<void> {
+  console.info(` ------ [Auctions] [AuctionClosed] Event Startd.`);
+
+  const [auctionId] = new Auctions.AuctionClosedEvent(event).params;
+  const auction = await getOrCreate(store, Auction, auctionId.toString());
+
+  auction.blockNum = block.height;
+  auction.status = "Closed";
+  auction.ongoing = false;
+  await store.save(auction);
+
+  const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
+  chronicle.curAuctionId = auctionId.toString();
+  await store.save(chronicle);
+
+  console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
+  
+}
+
 
 /**
  *
@@ -36,32 +103,47 @@ export async function handleBidAccepted({
   const bidAmount = amount.toNumber();
   const auction = await getOrCreate(store, Auction, auctionId.toString());
   const fund = await ensureFund(paraId.toNumber(), store);
-  const bid = new Bid({
-    id: `${blockNum}-${from}-${paraId}-${firstSlot}-${lastSlot}`,
-    auction,
-    blockNum,
-    winningAuction: auctionId,
-    parachain,
-    isCrowdloan: isFund,
-    amount: BigInt(bidAmount),
-    firstSlot: firstSlot.toNumber(),
-    lastSlot: lastSlot.toNumber(),
-    createdAt: new Date(createdAt),
-    fund,
-    bidder: isFund ? null : from.toHex(),
-  });
+  // const bid = await getOrUpdate(store, Bid, `${blockNum}-${from}-${paraId}-${firstSlot}-${lastSlot}`, {
+  //   auction,
+  //   blockNum,
+  //   winningAuction: auctionId,
+  //   parachain,
+  //   isCrowdloan: isFund,
+  //   amount: BigInt(bidAmount),
+  //   firstSlot: firstSlot.toNumber(),
+  //   lastSlot: lastSlot.toNumber(),
+  //   createdAt: new Date(createdAt),
+  //   fund,
+  //   bidder: isFund ? null : from.toHex(),
+  // })
 
-  const { id: bidId } = (await store.save(bid)) as any;
-  console.info(`Bid saved: ${bidId}`);
+  // const bid = new Bid({
+  //   id: `${blockNum}-${from}-${paraId}-${firstSlot}-${lastSlot}`,
+  //   auction,
+  //   blockNum,
+  //   winningAuction: auctionId,
+  //   parachain,
+  //   isCrowdloan: isFund,
+  //   amount: BigInt(bidAmount),
+  //   firstSlot: firstSlot.toNumber(),
+  //   lastSlot: lastSlot.toNumber(),
+  //   createdAt: new Date(createdAt),
+  //   fund,
+  //   bidder: isFund ? null : from.toHex(),
+  // });
+
+  // console.log(" bid :::: ",bid)
+  // const { id: bidId } = (await store.save(bid)) as any;
+  // console.info(`Bid saved: ${bidId}`);
 
   // await markParachainLeases(auctionId, paraId.toNumber(), firstSlot.toNumber(), lastSlot.toNumber(), bidAmount, store);
 
-  // await markLosingBids(auctionId, firstSlot, lastSlot, bidId);
+  // await markLosingBids(auctionId, firstSlot.toNumber(), lastSlot.toNumber(), bidId, store);
 
   // const auctionParaId = `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`;
-  // const auctionPara = await AuctionParachain.get(auctionParaId);
+  // const auctionPara = await getOrUpdate(store, AuctionParachain, auctionParaId, {});
   // if (!auctionPara) {
-  //   const { id } = await Storage.save('AuctionParachain', {
+  //   const auctionParachainData = new AuctionParachain({
   //     id: `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`,
   //     parachainId,
   //     auctionId:auctionId?.toString(),
@@ -69,7 +151,8 @@ export async function handleBidAccepted({
   //     lastSlot,
   //     createdAt,
   //     blockNum
-  //   });
+  //   })
+  //   const { id } = await store.save(auctionParachainData) as any;
   //   console.info(`Create AuctionParachain: ${id}`);
   // }
 }
@@ -105,3 +188,34 @@ export async function handleBidAccepted({
 //     hasWon: false
 //   });
 // };
+
+// const markLosingBids = async (auctionId: number, slotStart: number, slotEnd: number, winningBidId: string, store: DatabaseManager) => {
+//   const winningBids = (await getByWinningAuction(store, auctionId)) || [];
+//   const losingBids = winningBids.filter(
+//     ({ firstSlot, lastSlot, id }) => id !== winningBidId && slotStart == firstSlot && slotEnd == lastSlot
+//   );
+//   for (const bid of losingBids) {
+//     bid.winningAuction = null;
+//     await bid.save();
+//     console.info(`Mark Bid as losing bid ${bid.id}`);
+//   }
+// };
+
+
+
+export async function handleAuctionWinningOffset ({
+  store,
+  event,
+  block,
+}: EventContext & StoreContext): Promise<void> {
+  console.info(` ------ [Auctions] [WinningOffset] Event Startd.`);
+
+  const [auctionId, offsetBlock] = new Auctions.WinningOffsetEvent(event).params;
+  const auction = await getByAuctions(store, auctionId.toString());
+  console.log(" auction :::: ",auction)
+  // auction[0].resultBlock = auction.closingStart + offsetBlock.toString();
+  // console.info(`Update auction ${auctionId} winning offset: ${auction.resultBlock}`);
+  // await auction.save();
+
+  console.info(` ------ [Auctions] [WinningOffset] Event Completed.`);
+};

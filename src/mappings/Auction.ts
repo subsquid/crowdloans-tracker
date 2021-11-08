@@ -1,16 +1,19 @@
 import { EventContext, StoreContext } from "@subsquid/hydra-common";
-import { Auction, AuctionParachain, Bid, Chronicle } from "../generated/model";
+import { Auction, AuctionParachain, Bid, Chronicle, Parachain } from "../generated/model";
 import { Auctions } from "../types";
 import { apiService } from "./helpers/api";
-import { ensureFund, ensureParachain, getLatestCrowdloanId, getOrCreate, isFundAddress } from "./helpers/common";
+import { ensureFund, ensureParachain, getByAuctionParachain, getLatestCrowdloanId, getOrCreate, getOrUpdate, isFundAddress } from "./helpers/common";
 import { getParachainId } from "./helpers/utils";
+
+export async function handlerEmpty () {};
 
 export async function handleAuctionStarted({
   store,
   event,
-  block,
-  extrinsic,
+  block
 }: EventContext & StoreContext): Promise<void> {
+  console.info(` ------ [Auctions] [AuctionStarted] Event Startd.`);
+
   const [auctionId, slotStart, auctionEnds] = new Auctions.AuctionStartedEvent(
     event
   ).params;
@@ -28,7 +31,6 @@ export async function handleAuctionStarted({
   auction.slotsEnd = slotStart.toNumber() + periods - 1;
   auction.leaseStart = slotStart.toNumber() * leasePeriod;
   auction.leaseEnd = (slotStart.toNumber() + periods - 1) * leasePeriod;
-  // auction.createdAt = new Date(block.timestamp);
   auction.closingStart = auctionEnds.toNumber();
   auction.ongoing = true;
   auction.closingEnd = auctionEnds.toNumber() + endingPeriod;
@@ -37,6 +39,8 @@ export async function handleAuctionStarted({
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
   await store.save(chronicle);
+
+  console.info(` ------ [Auctions] [AuctionStarted] Event Completed.`);
 }
 
 export async function handleAuctionClosed({
@@ -44,18 +48,44 @@ export async function handleAuctionClosed({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
-  console.log(" reached here ");
+  console.info(` ------ [Auctions] [AuctionClosed] Event Startd.`);
+
   const [auctionId] = new Auctions.AuctionClosedEvent(event).params;
   const auction = await getOrCreate(store, Auction, auctionId.toString());
 
-  auction.blockNum = block.height;
-  auction.status = "Closed";
-  auction.ongoing = false;
+  let api = await apiService();
+  const endingPeriod = api.consts.auctions.endingPeriod.toJSON() as number;
+  const periods = api.consts.auctions.leasePeriodsPerSlot.toJSON() as number;
+  const leasePeriod = api.consts.slots.leasePeriod.toJSON() as number;
+
+  await getOrUpdate(store, Auction, auctionId.toString(), {
+    id: auctionId,
+    slotsStart: leasePeriod,
+    slotsEnd: leasePeriod + periods - 1,
+    closingStart: leasePeriod,
+    closingEnd: leasePeriod + endingPeriod,
+    blockNum: block.height,
+    status: "Closed",
+    ongoing: false
+
+  });
+
+  // auction.blockNum = block.height;
+  // auction.status = "Closed";
+  // auction.ongoing = false;
+  // auction.slotsStart = leasePeriod;
+  // auction.slotsEnd = leasePeriod + periods - 1;
+  // auction.closingStart = leasePeriod;
+  // auction.closingEnd = leasePeriod + endingPeriod;
+
   await store.save(auction);
 
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
   await store.save(chronicle);
+
+  console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
+  
 }
 
 export async function handleBidAccepted({
@@ -64,32 +94,45 @@ export async function handleBidAccepted({
   block,
 }: EventContext & StoreContext): Promise<void> {
   
-  const { timestamp: createdAt } = block;
-  const [from, paraId, amount, firstSlot, lastSlot] =
-    new Auctions.BidAcceptedEvent(event).params;
-  let api = await apiService();
-  const auctionId = (
-    await api.query.auctions.auctionCounter()
-  ).toJSON() as number;
+  const { timestamp: createdAt, height: blockNum, id: blockId  } = block;
+  const [from, paraId, amount, firstSlot, lastSlot] = new Auctions.BidAcceptedEvent(event).params;
+  const api = await apiService();
+  const auctionId = (await api.query.auctions.auctionCounter()).toJSON() as number;
 
-  // const auction = await store.get(Auction, {
-  //   where: { id: auctionId.toString() },
-  // })
 
   const auction = await getOrCreate(store, Auction, auctionId.toString());
-  const parachainId = (await getParachainId(paraId.toNumber())) as any;
-  const parachain = await ensureParachain(paraId.toNumber(), store);
-  const fund = await ensureFund(paraId.toNumber(), store);
-  const blockNum = block.height;
+  // const parachainId = (await getParachainId(paraId.toNumber())) as any;
+  // const parachain = await ensureParachain(paraId.toNumber(), store);
+  const { id: parachainId } = await ensureParachain(paraId.toNumber(), store);
+
   const isFund = await isFundAddress(from.toHex());
+  const fund = await ensureFund(paraId.toNumber(), store);
   const fundIdAlpha = await getLatestCrowdloanId(paraId.toString(), store);
 
+
+  const parachain = await store.find(Parachain, {
+    where: { id: parachainId },
+    take: 1,
+  });
+
+  const parachain2 = await store.find(Parachain, {
+    where: { id: paraId },
+    take: 1,
+  });
+
+  // const auction = await store.find(Auction, {
+  //   where: { id: auctionId.toString() },
+  //   take: 1,
+  // });
+
+
   const bid = new Bid({
-    id: `${blockNum}-${from}-${paraId}-${firstSlot}-${lastSlot}`,
+    id: `${blockNum}-${from}-${parachainId}-${firstSlot}-${lastSlot}`,
     auction,
+    // auction: auction[0],
     blockNum,
     winningAuction: auctionId,
-    parachain,
+    parachain: parachain[0],
     isCrowdloan: isFund,
     amount: BigInt(amount.toString()),
     firstSlot: firstSlot.toNumber(),
@@ -99,6 +142,7 @@ export async function handleBidAccepted({
     bidder: isFund ? null : from.toHex(),
   });
 
+  console.log(" bid ::: ",bid)
   /**
    * ToDo: Getting error :-
             name: QueryFailedError, message: insert or update on table "bid" violates foreign key constraint "FK_9e594e5a61c0f3cb25679f6ba8d", 
@@ -106,17 +150,17 @@ export async function handleBidAccepted({
    *  */ 
   await store.save(bid);
 
-  const auctionParaId = `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`;
-  const auctionPara = await store.get(AuctionParachain,{
-    where: { auctionParaId }
-  });
-  if (!auctionPara) {
-    await store.save(new AuctionParachain({
-      id: auctionParaId,
-      firstSlot: firstSlot.toNumber(),
-      lastSlot: lastSlot.toNumber(),
-      createdAt: new Date(block.timestamp),
-      blockNum: block.height
-    }))
-  }
+  // const auctionParaId = `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`;
+  // const auctionPara = await store.get(AuctionParachain,{
+  //   where: { auctionParaId }
+  // });
+  // if (!auctionPara) {
+  //   await store.save(new AuctionParachain({
+  //     id: auctionParaId,
+  //     firstSlot: firstSlot.toNumber(),
+  //     lastSlot: lastSlot.toNumber(),
+  //     createdAt: new Date(block.timestamp),
+  //     blockNum: block.height
+  //   }))
+  // }
 }

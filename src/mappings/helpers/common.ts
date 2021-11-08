@@ -3,6 +3,8 @@ import { Entity } from "@subsquid/openreader/dist/model";
 import { CrowdloanStatus } from "../../constants";
 import {
   Auction,
+  AuctionParachain,
+  Bid,
   Crowdloan,
   CrowdloanSequence,
   Parachain,
@@ -235,18 +237,49 @@ export const getAuctionsByOngoing = async (
 };
 
 export const getByLeaseRange = async (store: DatabaseManager, leaseRange: string): Promise<ParachainLeases[] | undefined> => {
-      
   const records = await store.find(ParachainLeases, {
     where: { leaseRange },
     take: 1,
   });
+
   return records.map((record: any )=> create(record, ParachainLeases));
-  
+}
+
+export const getByWinningAuction = async (store: DatabaseManager, winningAuction: number): Promise<Bid[] | undefined> => {
+  const records = await store.find(Bid, {
+    where: { winningAuction },
+    take: 1,
+  });
+
+  return records.map((record: any )=> create(record, Bid));
+}
+
+export const getByAuctionParachain = async (store: DatabaseManager, id:string): Promise<AuctionParachain[] | undefined> => {
+  const records = await store.find(AuctionParachain, {
+    where: { id },
+    take: 1,
+  });
+
+  return records.map((record: any ) => create(record, AuctionParachain));
+}
+
+export const getByAuctions = async (store: DatabaseManager, id:string): Promise<Auction[] | undefined> => {
+  const records = await store.find(Auction, {
+    where: { id },
+    take: 1,
+  });
+
+  if (records){
+    return records.map((record: any ) => create(record, Auction));
+  }else{
+      return;
+  }
 }
 
 export const create = <T>(record: any, entityConstructor: EntityConstructor<T>) => {
   let entity = new entityConstructor(record.id);
   Object.assign(entity, record);
+
   return entity;
 };
 

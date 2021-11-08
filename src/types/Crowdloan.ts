@@ -5,6 +5,17 @@ import {SubstrateEvent} from '@subsquid/hydra-common'
 
 export namespace Crowdloan {
   /**
+   * Create a new crowdloaning campaign. `[fund_index]`
+   */
+  export class CreatedEvent {
+    constructor(private event: SubstrateEvent) {}
+
+    get params(): [u32] {
+      return [create('u32', this.event.params[0].value)]
+    }
+  }
+
+  /**
    * Contributed to a crowd sale. `[who, fund_index, amount]`
    */
   export class ContributedEvent {

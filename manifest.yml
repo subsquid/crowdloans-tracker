@@ -6,38 +6,57 @@ typegen:
     source: wss://kusama-rpc.polkadot.io/
   outDir: src/types
   events:
-    - auctions.AuctionClosed
-    - auctions.BidAccepted
-    - slots.Leased
-    - crowdloan.Dissolved
-    - crowdloan.Contributed
     - registrar.Registered
+    - crowdloan.Created
     - auctions.AuctionStarted
+    - auctions.AuctionClosed
+    - auctions.WinningOffset
+    - auctions.BidAccepted
+    - auctions.Reserved
+    - auctions.Unreserved
+    - auctions.HandleBidResult
+    - slots.Leased
     - slots.NewLeasePeriod
+    - crowdloan.Contributed
+    - crowdloan.Dissolved
 
 mappings:
   mappingsModule: lib/mappings
   eventHandlers:
     - event: registrar.Registered
       handler: handleParachainRegistered
+    - event: crowdloan.Created
+      handler: handleCrowdloanCreated
     - event: auctions.AuctionStarted
       handler: handleAuctionStarted
-    - event: slots.NewLeasePeriod
-      handler: handleNewLeasePeriod
     - event: auctions.AuctionClosed
       handler: handleAuctionClosed
-    - event: crowdloan.Contributed
-      handler: handleCrowdloanContributed
-    - event: slots.Leased
-      handler: handleSlotsLeased
+
+    #### not working events
+    # - event: auctions.WinningOffset
+    #   handler: handleBidAccepted
+    # - event: auctions.BidAccepted
+    #   handler: handleBidAccepted
+    # - event: auctions.Reserved
+    #   handler: handlerEmpty
+    # - event: auctions.Unreserved
+    #   handler: handlerEmpty
+    # - event: auctions.HandleBidResult
+    #   handler: handlerEmpty
+
+    
+
+    # - event: slots.Leased
+    #   handler: handleSlotsLeased
+    # - event: slots.NewLeasePeriod
+    #   handler: handleNewLeasePeriod
+    # - event: crowdloan.Contributed
+    #   handler: handleCrowdloanContributed
     # - event: crowdloan.Dissolved
     #   handler: handleCrowdloanDissolved
 
-    #### not working events
-    - event: auctions.BidAccepted
-      handler: handleBidAccepted
 
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  range: '[ 9007195, ]'
+  range: '[ 9362012, ]'

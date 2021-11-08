@@ -58,9 +58,9 @@ export async function handleCrowdloanCreated({
   event,
   block
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ Crowdloan Createdevent Event Startd.`);
+  console.info(` ------ [Crowdloan] [Createdevent] Event Startd.`);
   const [fundId] = new Crowdloan.DissolvedEvent(event).params;
   await ensureParachain(fundId.toNumber(), store);
   const fund = await ensureFund(fundId.toNumber(), store, { blockNum: block.height });
-  console.info(` ------ Crowdloan Createdevent Event Completed.`);
+  console.info(` ------ [Crowdloan] [Createdevent] Event Completed.`);
 };
