@@ -3,10 +3,11 @@ import { Auction, AuctionParachain, Bid, Chronicle, Parachain, ParachainLeases }
 import { Auctions } from "../types";
 import { apiService } from "./helpers/api";
 import { ChronicleKey } from '../constants';
-import { ensureFund, ensureParachain, getByAuctionParachain, getByAuctions, getLatestCrowdloanId, getOrCreate, getOrUpdate, isFundAddress } from "./helpers/common";
+import { ensureFund, ensureParachain, get, getByAuctionParachain, getByAuctions, getLatestCrowdloanId, getOrCreate, getOrUpdate, isFundAddress } from "./helpers/common";
 
 export async function handlerEmpty () {};
 
+// reviewd
 export async function handleAuctionStarted({
   store,
   event,
@@ -35,7 +36,11 @@ export async function handleAuctionStarted({
   auction.ongoing = true;
   await store.save(auction);
 
-  const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
+  const chronicle = await get(store, Chronicle, "ChronicleKey");
+  if(!chronicle){
+    console.error("Chronicle not defined. Exiting")
+    process.exit(1)
+  }
   chronicle.curAuctionId = auctionId.toString();
   await store.save(chronicle);
 
