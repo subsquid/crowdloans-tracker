@@ -13,6 +13,7 @@ type Auction @entity {
   resultBlock: Int
   ongoing: Boolean! 
   parachainLeases: [ParachainLeases] @derivedFrom(field: "auction")
+  createdAt:  DateTime!
 }
 
 type Parachain @entity {

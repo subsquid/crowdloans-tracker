@@ -46,4 +46,7 @@ export class Auction {
 
   @OneToMany_(() => ParachainLeases, e => e.auction)
   parachainLeases!: ParachainLeases[]
+
+  @Column_("timestamp with time zone", {nullable: false})
+  createdAt!: Date
 }
