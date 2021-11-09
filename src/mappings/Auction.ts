@@ -17,9 +17,9 @@ export async function handleAuctionStarted({
   const [auctionId, slotStart, auctionEnds] = new Auctions.AuctionStartedEvent(event).params;
 
   const api = await apiService();
-  const endingPeriod =await  api.consts.auctions.endingPeriod.toJSON() as number;
-  const leasePeriod = await api.consts.slots.leasePeriod.toJSON() as number;
-  const periods = await api.consts.auctions.leasePeriodsPerSlot.toJSON() as number;
+  const endingPeriod =  api.consts.auctions.endingPeriod.toJSON() as number;
+  const leasePeriod =  api.consts.slots.leasePeriod.toJSON() as number;
+  const periods =  api.consts.auctions.leasePeriodsPerSlot.toJSON() as number;
 
   const auction = await getOrCreate(store, Auction, auctionId.toString());
 
@@ -29,6 +29,7 @@ export async function handleAuctionStarted({
   auction.slotsEnd = slotStart.toNumber() + periods - 1;
   auction.leaseStart = slotStart.toNumber() * leasePeriod;
   auction.leaseEnd = (slotStart.toNumber() + periods - 1) * leasePeriod;
+  auction.createdAt = new Date(block.timestamp)
   auction.closingStart = auctionEnds.toNumber();
   auction.closingEnd = auctionEnds.toNumber() + endingPeriod;
   auction.ongoing = true;
