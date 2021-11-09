@@ -46,6 +46,18 @@ export async function getOrCreate<T extends { id: string }>(
   return e;
 }
 
+export async function get<T extends { id: string }>(
+  store: DatabaseManager,
+  entityConstructor: EntityConstructor<T>,
+  id: string
+): Promise<T  | undefined> {
+  let e = await store.get(entityConstructor, {
+    where: { id },
+  });
+
+  return e;
+}
+
 export const getOrUpdate = async <T>(
   store: DatabaseManager,
   entityConstructor: EntityConstructor<T>,

@@ -1,7 +1,7 @@
 import { EventContext, StoreContext } from "@subsquid/hydra-common";
-import { ensureFund, ensureParachain } from "./helpers/common";
+import { ensureFund, ensureParachain, get } from "./helpers/common";
 import { parseNumber, getParachainId } from "./helpers/utils";
-import { Contribution, Parachain } from "../generated/model";
+import { Contribution, Parachain, Crowdloan as CrowdloanModel  } from "../generated/model";
 import { CrowdloanStatus } from "../constants";
 import { Crowdloan } from "../types";
 
@@ -28,29 +28,27 @@ export async function handleCrowdloanContributed({
 
   const blockNum = block.height;
   const [contributorId, fundIdx, amount] = new Crowdloan.ContributedEvent(event).params;
-  const amtValue = typeof amount === "string" ? parseNumber(amount) : amount;
-  const { id, paraId } = await ensureParachain(fundIdx.toNumber(), store);
+  await ensureParachain(fundIdx.toNumber(), store);
 
-  const crowdLoanData = await ensureFund(paraId, store);
-  const parachainId = await getParachainId(paraId) as any;
-  const parachain = await store.find(Parachain, {
-    where: { id: parachainId },
-    take: 1,
-  });
-
+const fund = await ensureFund(fundIdx.toNumber(), store);
+const fundId = fund.id
+const parachain = fund.parachain
+  const crowdLoan =await  get(store, CrowdloanModel, fundId)
+  if(crowdLoan){
   const contribution = new Contribution({
-    id,
-    account: contributorId.toHex(),
-    parachain: parachain[0],
-    fund: crowdLoanData,
-    amount: BigInt(amtValue.toString()),
-    createdAt: crowdLoanData.createdAt,
-    blockNum,
+    id: `${blockNum}-${event.id}`,
+    account: contributorId.toString(),
+    parachain,
+    fund: crowdLoan,
+    amount: amount.toBigInt(),
+    createdAt: new Date (block.timestamp),
+    blockNum
   });
 
   await store.save(contribution);
 
   console.info(` ------ [Crowdloan] [Contributed] Event Completed.`);
+}
 }
 
 export async function handleCrowdloanDissolved({
