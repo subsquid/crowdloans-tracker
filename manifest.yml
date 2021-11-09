@@ -31,8 +31,8 @@ mappings:
       handler: handleAuctionStarted
     - event: auctions.AuctionClosed
       handler: handleAuctionClosed
-    # - event: auctions.WinningOffset
-    #   handler: handleAuctionWinningOffset
+    - event: auctions.WinningOffset
+      handler: handleAuctionWinningOffset
 
     #### not working events
     # - event: auctions.BidAccepted
