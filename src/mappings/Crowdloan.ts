@@ -5,6 +5,7 @@ import { Contribution, Parachain, Crowdloan as CrowdloanModel  } from "../genera
 import { CrowdloanStatus } from "../constants";
 import { Crowdloan } from "../types";
 
+//reviewed
 export async function handleCrowdloanCreated({
   store,
   event,
@@ -19,6 +20,7 @@ export async function handleCrowdloanCreated({
   console.info(` ------ [Crowdloan] [Created] Event Completed.`);
 };
 
+//reviewed
 export async function handleCrowdloanContributed({
   store,
   event,
@@ -51,6 +53,7 @@ const parachain = fund.parachain
 }
 }
 
+//reviewed
 export async function handleCrowdloanDissolved({
   store,
   event,
