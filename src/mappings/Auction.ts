@@ -7,7 +7,7 @@ import { ensureFund, ensureParachain, get, getByAuctionParachain, getByAuctions,
 
 export async function handlerEmpty () {};
 
-// reviewd
+// reviewed
 export async function handleAuctionStarted({
   store,
   event,
@@ -47,6 +47,7 @@ export async function handleAuctionStarted({
   console.info(` ------ [Auctions] [AuctionStarted] Event Completed.`);
 }
 
+//reviewd
 export async function handleAuctionClosed({
   store,
   event,
@@ -55,25 +56,24 @@ export async function handleAuctionClosed({
   console.info(` ------ [Auctions] [AuctionClosed] Event Started.`);
 
   const [auctionId] = new Auctions.AuctionClosedEvent(event).params;
-  const auction = await getOrCreate(store, Auction, auctionId.toString());
-
-  let api = await apiService();
-  const endingPeriod = await api.consts.auctions.endingPeriod.toJSON() as number;
-  const periods = await api.consts.auctions.leasePeriodsPerSlot.toJSON() as number;
-  const leasePeriod = await api.consts.slots.leasePeriod.toJSON() as number;
+  const auction = await get(store, Auction, auctionId.toString());
+  if(!auction){
+    console.error("Auction not defined. Exiting")
+    process.exit(1)
+  }
 
   auction.blockNum = block.height;
   auction.status = "Closed";
   auction.ongoing = false;
-  auction.slotsStart = leasePeriod;
-  auction.slotsEnd = leasePeriod + periods - 1;
-  auction.closingStart = leasePeriod;
-  auction.closingEnd = leasePeriod + endingPeriod;
 
   await store.save(auction);
 
-  const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
-  chronicle.curAuctionId = auctionId.toString();
+  const chronicle = await get(store, Chronicle, "ChronicleKey");
+  if(!chronicle){
+    console.error("Chronicle not defined. Exiting")
+    process.exit(1)
+  }
+  chronicle.curAuctionId = null
   await store.save(chronicle);  
 
   console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
