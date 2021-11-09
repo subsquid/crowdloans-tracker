@@ -4,6 +4,7 @@ import { Registrar } from "../types";
 import { apiService } from "./helpers/api";
 import { getOrCreate } from "./helpers/common";
 
+//Reviewed
 export async function handleParachainRegistered({
   store,
   event,
@@ -25,5 +26,5 @@ export async function handleParachainRegistered({
 
   await store.save(parachain);
 
-  console.info(` ------ [Registrar] [Registered] Event Completed.`);
+  console.info(`new Parachain saved: ${JSON.stringify(parachain, null, 2)}`);
 }
