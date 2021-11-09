@@ -1,5 +1,5 @@
 import { DatabaseManager, EventContext, StoreContext, SubstrateBlock } from "@subsquid/hydra-common";
-import { Auction, AuctionParachain, Bid, Chronicle, Parachain, ParachainLeases } from "../generated/model";
+import { Auction, AuctionParachain, Bid, Chronicle, Crowdloan, Parachain, ParachainLeases } from "../generated/model";
 import { Auctions } from "../types";
 import { apiService } from "./helpers/api";
 import { ChronicleKey } from '../constants';
@@ -126,11 +126,12 @@ const markParachainLeases = async (
   paraId: number,
   leaseStart: number,
   leaseEnd: number,
-  bidAmount: number,
-  store: DatabaseManager
+  bidAmount: bigint,
+  store: DatabaseManager,
+  block: SubstrateBlock
 ) => {
   const leaseRange = `${auctionId}-${leaseStart}-${leaseEnd}`;
-  const { id: parachainId } = await ensureParachain(paraId, store);
+  const { id: parachainId } = await ensureParachain(paraId, store, block);
   const winningLeases = await store.find(ParachainLeases,
     {
       where: {leaseRange: leaseRange}
@@ -141,10 +142,13 @@ const markParachainLeases = async (
     store.save(lease)
     console.info(`Mark losing parachain leases ${lease.paraId} for ${lease.leaseRange}`);
   }
+  const parachain = await store.find(Parachain, {
+    where:{id:parachainId}
+  })
   await getOrUpdate(store, ParachainLeases, `${paraId}-${leaseRange}`, {
     paraId,
     leaseRange,
-    parachainId,
+    parachain: parachain[0],
     firstLease: leaseStart,
     lastLease: leaseEnd,
     auctionId: auctionId?.toString(),
@@ -168,31 +172,37 @@ export const handleBidAccepted = async ({
 const api = await apiService()
   const blockNum = block.height
   const [from, paraId, amount, firstSlot, lastSlot] = new Auctions.BidAcceptedEvent(event).params
-  const auctionId = (await api.query.auctions.auctionCounter()).toJSON() as number;
+  const auctionId = (await api.query.auctions.auctionCounter.at(block.hash)).toJSON() as number;
   const isFund = await isFundAddress(from.toString());
-  const parachain = await ensureParachain(paraId.toNumber(), store);
+  const parachain = await ensureParachain(paraId.toNumber(), store, block);
   const { id: parachainId } = parachain;
 
   const fundId = await getLatestCrowdloanId(parachainId, store);
-  const bidAmount = amount.toNumber()
-  const bid = {
+  let auction = await store.find(Auction, {
+    where:{id: auctionId.toString()}
+  })
+  const crowdloan = await store.find(Crowdloan, {
+    where:{id: fundId}
+  })
+  
+  const bid = new Bid({
     id: `${blockNum}-${from}-${paraId}-${firstSlot}-${lastSlot}`,
-    auctionId: `${auctionId}`,
+    auction: auction[0],
     blockNum,
     winningAuction: auctionId,
-    parachainId,
+    parachain,
     isCrowdloan: isFund,
-    amount: amount.toNumber(),
-    firstSlot,
-    lastSlot,
-    createdAt : block.timestamp,
-    fundId: isFund ? fundId : null,
-    bidder: isFund ? null : from
-  };
+    amount: amount.toBigInt(),
+    firstSlot: firstSlot.toNumber(),
+    lastSlot: lastSlot.toNumber(),
+    createdAt : new Date(block.timestamp),
+    fund: isFund ? crowdloan[0] : null,
+    bidder: isFund ? null : from.toString()
+  });
 
   await store.save(bid);
 
-  await markParachainLeases(auctionId, paraId.toNumber(), firstSlot.toNumber(), lastSlot.toNumber(), bidAmount, store);
+  await markParachainLeases(auctionId, paraId.toNumber(), firstSlot.toNumber(), lastSlot.toNumber(), amount.toBigInt(), store, block);
 
   await markLosingBids(auctionId, firstSlot.toNumber(), lastSlot.toNumber(), bid.id, store);
 
@@ -200,7 +210,7 @@ const api = await apiService()
   const auctionPara = await store.find(AuctionParachain, {
     where: {id: auctionParaId}
   })
-  if (!auctionPara) {
+  if (auctionPara.length == 0) {
     let parachain = await store.find(Parachain, {
       where:{id: parachainId}
     })

@@ -15,7 +15,7 @@ export async function handleParachainRegistered({
   const [paraId, managerId] = new Registrar.RegisteredEvent(event).params;
   const parachain = await getOrCreate( store, Parachain, `${paraId}-${managerId.toString()}` );
   const api = await apiService();
-  const { deposit } = (await api.query.registrar.paras(paraId)).toJSON() || ({ deposit: 0 } as any);
+  const { deposit } = (await api.query.registrar.paras.at(block.hash,paraId)).toJSON() || ({ deposit: 0 } as any);
   
   parachain.paraId = paraId.toNumber();
   parachain.createdAt = new Date(block.timestamp);

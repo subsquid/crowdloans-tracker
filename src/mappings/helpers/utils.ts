@@ -19,18 +19,18 @@ export const parseBigInt = (data:any) => {
   return 0;
 };
 
-export const getParachainId = async (paraId: number | ParachainReturn) => {
+export const getParachainId = async (paraId: number | ParachainReturn, block: SubstrateBlock) => {
   if (typeof paraId === 'number') {
-    const { manager } = (await fetchParachain(paraId)) || {};
+    const { manager } = (await fetchParachain(paraId, block)) || {};
     return `${paraId}-${manager || ''}`;
   }
   const { manager } = paraId || {};
   return `${paraId}-${manager || ''}`;
 };
 
-export const fetchParachain = async (paraId: number): Promise<ParachainReturn | null> => {
+export const fetchParachain = async (paraId: number, block: SubstrateBlock): Promise<ParachainReturn | null> => {
   const api =await  apiService();
-  const parachain = (await api.query.registrar.paras(paraId)).toJSON() as unknown;
+  const parachain = (await api.query.registrar.paras.at(block.hash,paraId)).toJSON() as unknown;
 
   return parachain as ParachainReturn | null;
 };

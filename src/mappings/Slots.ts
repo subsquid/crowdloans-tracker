@@ -24,7 +24,7 @@ export async function handleSlotsLeased({
     return;
   }
 
-  const { id: parachainId } = await ensureParachain(paraId.toNumber(), store);
+  const { id: parachainId } = await ensureParachain(paraId.toNumber(), store, block);
   const totalUsed = parseNumber(total.toString());
   const extraAmount = parseNumber(extra.toString());
 

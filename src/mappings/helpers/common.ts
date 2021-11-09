@@ -101,19 +101,21 @@ export const isFundAddress = async (address: string) => {
 };
 
 export const fetchParachain = async (
-  paraId: number
+  paraId: number,
+  block: SubstrateBlock
 ): Promise<ParachainReturn | null> => {
   const api = await apiService();
-  const parachain = (await api.query.registrar.paras(paraId)).toJSON() as unknown;
+  const parachain = (await api.query.registrar.paras.at(block.hash,paraId)).toJSON() as unknown;
 
   return parachain as ParachainReturn | null;
 };
 
 export const ensureParachain = async (
   paraId: number,
-  store: DatabaseManager
+  store: DatabaseManager,
+  block: SubstrateBlock
 ): Promise<Parachain> => {
-  const { manager, deposit } = (await fetchParachain(paraId)) || {
+  const { manager, deposit } = (await fetchParachain(paraId, block)) || {
     manager: "",
     deposit: "",
   };
@@ -186,7 +188,7 @@ export const ensureFund = async (
   modifier?: Record<string, any>
 ): Promise<Crowdloan> => {
   const fund = await fetchCrowdloan(paraId, block);
-  const parachainId = await getParachainId(paraId);
+  const parachainId = await getParachainId(paraId, block);
   const parachain = await store.find(Parachain, {
     where: { id: parachainId },
     take: 1,

@@ -14,7 +14,7 @@ export async function handleCrowdloanCreated({
   console.info(` ------ [Crowdloan] [Created] Event Started.`);
 
   const [fundId] = new Crowdloan.CreatedEvent(event).params;
-  await ensureParachain(fundId.toNumber(), store);
+  await ensureParachain(fundId.toNumber(), store, block);
   await ensureFund(fundId.toNumber(), store,block, { blockNum: block.height });
 
   console.info(` ------ [Crowdloan] [Created] Event Completed.`);
@@ -30,7 +30,7 @@ export async function handleCrowdloanContributed({
 
   const blockNum = block.height;
   const [contributorId, fundIdx, amount] = new Crowdloan.ContributedEvent(event).params;
-  const parachain = await ensureParachain(fundIdx.toNumber(), store);
+  const parachain = await ensureParachain(fundIdx.toNumber(), store, block);
 
 const fund = await ensureFund(fundIdx.toNumber(), store,block);
 const fundId = fund.id
