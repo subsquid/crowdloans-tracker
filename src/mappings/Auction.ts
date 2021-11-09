@@ -79,6 +79,7 @@ export async function handleAuctionClosed({
   console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
 }
 
+//reviewed
 export async function handleAuctionWinningOffset ({
   store,
   event,
@@ -87,7 +88,13 @@ export async function handleAuctionWinningOffset ({
   console.info(` ------ [Auctions] [WinningOffset] Event Started.`);
 
   const [auctionId, offsetBlock] = new Auctions.WinningOffsetEvent(event).params;
-  const auction = await getByAuctions(store, auctionId.toString()) as Auction[];
+  const auction = await store.find(Auction, {
+    where: {id: auctionId.toString()}
+  })
+  if(!auction){
+    console.log('Auction not defined for handleAuctionWinningOffset')
+    process.exit(1)
+  }
 
   if(auction.length != 0) {
     let auctionData = auction[0]
