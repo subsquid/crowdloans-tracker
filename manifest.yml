@@ -2,8 +2,6 @@ version: '4.0'
 description: Auctions manifest
 
 typegen:
-  metadata:
-    source: wss://kusama-rpc.polkadot.io/
   outDir: src/types
   events:
     - registrar.Registered
@@ -54,4 +52,4 @@ mappings:
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  # range: '[ 9535653, ]'
+  # range: '[ 7513580, ]' # Auction startednewleas
