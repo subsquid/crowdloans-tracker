@@ -92,9 +92,7 @@ export const fetchParachain = async (
   paraId: number
 ): Promise<ParachainReturn | null> => {
   const api = await apiService();
-  const parachain = (
-    await api.query.registrar.paras(paraId)
-  ).toJSON() as unknown;
+  const parachain = (await api.query.registrar.paras(paraId)).toJSON() as unknown;
 
   return parachain as ParachainReturn | null;
 };

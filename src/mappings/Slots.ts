@@ -12,6 +12,7 @@ export async function handleSlotsLeased({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
+  console.info(` ------ [Slots] [Leased] Event Started.`);
 
   const blockNum = block.height;
   const [paraId, from, firstLease, leaseCount, extra, total] = new Slots.LeasedEvent(event).params;
@@ -99,6 +100,8 @@ export async function handleSlotsLeased({
     }).catch((err) => {
     console.error(`Upsert ParachainLeases failed ${err}`);
   });
+
+  console.info(` ------ [Slots] [Leased] Event Completed.`);
 }
 
 export async function handleNewLeasePeriod({
@@ -106,6 +109,8 @@ export async function handleNewLeasePeriod({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
+  console.info(` ------ [Slots] [NewLeasePeriod] Event Started.`);
+
   const [leaseIdx] = new Slots.NewLeasePeriodEvent(event).params;
   const api = await apiService();
   const leasePeriod = api.consts.slots.leasePeriod.toJSON() as number;
@@ -117,4 +122,6 @@ export async function handleNewLeasePeriod({
   chronicle.curLeaseEnd = timestamp + leasePeriod - 1;
 
   await store.save(chronicle);
+
+  console.info(` ------ [Slots] [NewLeasePeriod] Event Completed.`);
 }

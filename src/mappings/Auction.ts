@@ -12,7 +12,7 @@ export async function handleAuctionStarted({
   event,
   block
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Auctions] [AuctionStarted] Event.`);
+  console.info(` ------ [Auctions] [AuctionStarted] Event Started.`);
 
   const [auctionId, slotStart, auctionEnds] = new Auctions.AuctionStartedEvent(event).params;
 
@@ -37,6 +37,8 @@ export async function handleAuctionStarted({
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
   await store.save(chronicle);
+
+  console.info(` ------ [Auctions] [AuctionStarted] Event Completed.`);
 }
 
 export async function handleAuctionClosed({
@@ -44,7 +46,7 @@ export async function handleAuctionClosed({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Auctions] [AuctionClosed] Event.`);
+  console.info(` ------ [Auctions] [AuctionClosed] Event Started.`);
 
   const [auctionId] = new Auctions.AuctionClosedEvent(event).params;
   const auction = await getOrCreate(store, Auction, auctionId.toString());
@@ -67,6 +69,8 @@ export async function handleAuctionClosed({
   const chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
   chronicle.curAuctionId = auctionId.toString();
   await store.save(chronicle);  
+
+  console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
 }
 
 export async function handleAuctionWinningOffset ({
@@ -74,7 +78,7 @@ export async function handleAuctionWinningOffset ({
   event,
   block,
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Auctions] [WinningOffset] Event.`);
+  console.info(` ------ [Auctions] [WinningOffset] Event Started.`);
 
   const [auctionId, offsetBlock] = new Auctions.WinningOffsetEvent(event).params;
   const auction = await getByAuctions(store, auctionId.toString()) as Auction[];
@@ -85,81 +89,91 @@ export async function handleAuctionWinningOffset ({
     console.info(`Update auction ${auctionId} winning offset: ${auctionData.resultBlock}`);
     await store.save(auctionData);
   }
+
+  console.info(` ------ [Auctions] [WinningOffset] Event Completed.`);
 };
 
-// export async function handleBidAccepted({
-//   store,
-//   event,
-//   block,
-// }: EventContext & StoreContext): Promise<void> {
+export async function handleBidAccepted({
+  store,
+  event,
+  block,
+}: EventContext & StoreContext): Promise<void> {
+  console.info(` ------ [Auctions] [BidAccepted] Event Started.`);
   
-//   const { timestamp: createdAt, height: blockNum, id: blockId  } = block;
-//   const [from, paraId, amount, firstSlot, lastSlot] = new Auctions.BidAcceptedEvent(event).params;
-//   const api = await apiService();
-//   const auctionId = (await api.query.auctions.auctionCounter()).toJSON() as number;
+  const { timestamp: createdAt, height: blockNum, id: blockId  } = block;
+  const [from, paraId, amount, firstSlot, lastSlot] = new Auctions.BidAcceptedEvent(event).params;
+  const api = await apiService();
+  const auctionId = (await api.query.auctions.auctionCounter()).toJSON() as number;
 
 
-//   const auction = await getOrCreate(store, Auction, auctionId.toString());
-//   // const parachainId = (await getParachainId(paraId.toNumber())) as any;
-//   // const parachain = await ensureParachain(paraId.toNumber(), store);
-//   const { id: parachainId } = await ensureParachain(paraId.toNumber(), store);
+  // const auction = await getOrCreate(store, Auction, auctionId.toString());
+  // const parachainId = (await getParachainId(paraId.toNumber())) as any;
+  // const parachain = await ensureParachain(paraId.toNumber(), store);
+  const { id: parachainId } = await ensureParachain(paraId.toNumber(), store);
 
-//   const isFund = await isFundAddress(from.toHex());
-//   const fund = await ensureFund(paraId.toNumber(), store);
-//   const fundIdAlpha = await getLatestCrowdloanId(paraId.toString(), store);
-
-
-//   const parachain = await store.find(Parachain, {
-//     where: { id: parachainId },
-//     take: 1,
-//   });
-
-//   const parachain2 = await store.find(Parachain, {
-//     where: { id: paraId },
-//     take: 1,
-//   });
-
-//   // const auction = await store.find(Auction, {
-//   //   where: { id: auctionId.toString() },
-//   //   take: 1,
-//   // });
+  const isFund = await isFundAddress(from.toHex());
+  const fund = await ensureFund(paraId.toNumber(), store);
+  const fundIdAlpha = await getLatestCrowdloanId(paraId.toString(), store);
 
 
-//   const bid = new Bid({
-//     id: `${blockNum}-${from}-${parachainId}-${firstSlot}-${lastSlot}`,
-//     auction,
-//     // auction: auction[0],
-//     blockNum,
-//     winningAuction: auctionId,
-//     parachain: parachain[0],
-//     isCrowdloan: isFund,
-//     amount: BigInt(amount.toString()),
-//     firstSlot: firstSlot.toNumber(),
-//     lastSlot: lastSlot.toNumber(),
-//     createdAt: new Date(createdAt),
-//     fund,
-//     bidder: isFund ? null : from.toHex(),
-//   });
+  const parachain = await store.find(Parachain, {
+    where: { id: parachainId },
+    take: 1,
+  });
 
-//   console.log(" bid ::: ",bid)
-//   /**
-//    * ToDo: Getting error :-
-//             name: QueryFailedError, message: insert or update on table "bid" violates foreign key constraint "FK_9e594e5a61c0f3cb25679f6ba8d", 
-//             stack: QueryFailedError: insert or update on table "bid" violates foreign key constraint "FK_9e594e5a61c0f3cb25679f6ba8d"
-//    *  */ 
-//   await store.save(bid);
+  const parachain2 = await store.find(Parachain, {
+    where: { id: paraId },
+    take: 1,
+  });
 
-//   // const auctionParaId = `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`;
-//   // const auctionPara = await store.get(AuctionParachain,{
-//   //   where: { auctionParaId }
-//   // });
-//   // if (!auctionPara) {
-//   //   await store.save(new AuctionParachain({
-//   //     id: auctionParaId,
-//   //     firstSlot: firstSlot.toNumber(),
-//   //     lastSlot: lastSlot.toNumber(),
-//   //     createdAt: new Date(block.timestamp),
-//   //     blockNum: block.height
-//   //   }))
-//   // }
-// }
+  // const auction = await store.find(Auction, {
+  //   where: { id: auctionId.toString() },
+  //   take: 1,
+  // });
+
+  const auctionData = await getByAuctions(store, auctionId.toString()) as Auction[];
+  if(auctionData.length != 0) {
+
+    let auction = auctionData[0]
+  
+    const bid = new Bid({
+      id: `${blockNum}-${from}-${parachainId}-${firstSlot}-${lastSlot}`,
+      auction,
+      blockNum,
+      winningAuction: auctionId,
+      parachain: parachain[0],
+      isCrowdloan: isFund,
+      amount: BigInt(amount.toString()),
+      firstSlot: firstSlot.toNumber(),
+      lastSlot: lastSlot.toNumber(),
+      createdAt: new Date(createdAt),
+      fund,
+      bidder: isFund ? null : from.toHex(),
+    });
+  
+    console.log(" bid ::: ",bid)
+    /**
+     * ToDo: Getting error :-
+              name: QueryFailedError, message: insert or update on table "bid" violates foreign key constraint "FK_9e594e5a61c0f3cb25679f6ba8d", 
+              stack: QueryFailedError: insert or update on table "bid" violates foreign key constraint "FK_9e594e5a61c0f3cb25679f6ba8d"
+     *  */ 
+    await store.save(bid);
+    // const auctionParaId = `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`;
+    // const auctionPara = await store.get(AuctionParachain,{
+    //   where: { auctionParaId }
+    // });
+    // if (!auctionPara) {
+    //   await store.save(new AuctionParachain({
+    //     id: auctionParaId,
+    //     firstSlot: firstSlot.toNumber(),
+    //     lastSlot: lastSlot.toNumber(),
+    //     createdAt: new Date(block.timestamp),
+    //     blockNum: block.height
+    //   }))
+    // }
+  } else {
+    console.log(` ------ [Auctions] [BidAccepted] Event No auction found.`);
+  }
+
+  console.info(` ------ [Auctions] [BidAccepted] Event Completed.`);
+}

@@ -31,32 +31,30 @@ mappings:
       handler: handleAuctionStarted
     - event: auctions.AuctionClosed
       handler: handleAuctionClosed
-    - event: auctions.WinningOffset
-      handler: handleAuctionWinningOffset
+    # - event: auctions.WinningOffset
+    #   handler: handleAuctionWinningOffset
 
     #### not working events
     # - event: auctions.BidAccepted
     #   handler: handleBidAccepted
-    # - event: auctions.Reserved
-    #   handler: handlerEmpty
-    # - event: auctions.Unreserved
-    #   handler: handlerEmpty
-    # - event: auctions.HandleBidResult
-    #   handler: handlerEmpty
 
-    
-
-    # - event: slots.Leased
-    #   handler: handleSlotsLeased
-    # - event: slots.NewLeasePeriod
-    #   handler: handleNewLeasePeriod
-    # - event: crowdloan.Contributed
-    #   handler: handleCrowdloanContributed
-    # - event: crowdloan.Dissolved
-    #   handler: handleCrowdloanDissolved
+    - event: auctions.Reserved
+      handler: handlerEmpty
+    - event: auctions.Unreserved
+      handler: handlerEmpty
+    - event: auctions.HandleBidResult
+      handler: handlerEmpty
+    - event: slots.Leased
+      handler: handleSlotsLeased
+    - event: slots.NewLeasePeriod
+      handler: handleNewLeasePeriod
+    - event: crowdloan.Contributed
+      handler: handleCrowdloanContributed
+    - event: crowdloan.Dissolved
+      handler: handleCrowdloanDissolved
 
 
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
-  range: '[ 9362012, ]'
+  # range: '[ 9535653, ]'
