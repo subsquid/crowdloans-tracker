@@ -7,6 +7,7 @@ import { ensureFund, ensureParachain, getOrCreate, getOrUpdate, isFundAddress } 
 import { CrowdloanStatus } from "../constants";
 import { parseNumber } from "./helpers/utils";
 
+//reviewed
 export async function handleSlotsLeased({
   store,
   event,
@@ -82,7 +83,7 @@ export async function handleSlotsLeased({
 
   await getOrUpdate( store, ParachainLeases, `${paraId}-${auctionId || "sudo"}-${firstLease}-${lastLease}`,
    {
-      id: `${paraId}-${firstLease}-${lastLease}-${auctionId || "sudo"}`,
+      // id: `${paraId}-${firstLease}-${lastLease}-${auctionId || "sudo"}`,
       paraId,
       parachain: parachain[0],
       leaseRange: `${auctionId || "sudo"}-${firstLease}-${lastLease}`,
