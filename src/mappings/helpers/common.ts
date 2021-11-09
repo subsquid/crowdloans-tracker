@@ -1,4 +1,4 @@
-import { DatabaseManager } from "@subsquid/hydra-common";
+import { DatabaseManager, SubstrateBlock } from "@subsquid/hydra-common";
 import { Entity } from "@subsquid/openreader/dist/model";
 import { CrowdloanStatus } from "../../constants";
 import {
@@ -182,9 +182,10 @@ export const getLatestCrowdloanId = async (
 export const ensureFund = async (
   paraId: number,
   store: DatabaseManager,
+  block: SubstrateBlock,
   modifier?: Record<string, any>
 ): Promise<Crowdloan> => {
-  const fund = await fetchCrowdloan(paraId);
+  const fund = await fetchCrowdloan(paraId, block);
   const parachainId = await getParachainId(paraId);
   const parachain = await store.find(Parachain, {
     where: { id: parachainId },

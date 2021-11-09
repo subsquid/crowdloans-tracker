@@ -15,7 +15,7 @@ export async function handleCrowdloanCreated({
 
   const [fundId] = new Crowdloan.CreatedEvent(event).params;
   await ensureParachain(fundId.toNumber(), store);
-  await ensureFund(fundId.toNumber(), store, { blockNum: block.height });
+  await ensureFund(fundId.toNumber(), store,block, { blockNum: block.height });
 
   console.info(` ------ [Crowdloan] [Created] Event Completed.`);
 };
@@ -32,7 +32,7 @@ export async function handleCrowdloanContributed({
   const [contributorId, fundIdx, amount] = new Crowdloan.ContributedEvent(event).params;
   const parachain = await ensureParachain(fundIdx.toNumber(), store);
 
-const fund = await ensureFund(fundIdx.toNumber(), store);
+const fund = await ensureFund(fundIdx.toNumber(), store,block);
 const fundId = fund.id
 // const parachain = fund.parachain
   const crowdLoan =await  get(store, CrowdloanModel, fundId)
@@ -64,7 +64,7 @@ export async function handleCrowdloanDissolved({
   const { timestamp: createdAt } = block;
   const blockNum = block.height;
   const [fundId] = new Crowdloan.DissolvedEvent(event).params;
-  await ensureFund(fundId.toNumber(), store, {
+  await ensureFund(fundId.toNumber(), store,block, {
     status: CrowdloanStatus.DISSOLVED,
     isFinished: true,
     updatedAt: new Date(createdAt),

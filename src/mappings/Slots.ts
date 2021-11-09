@@ -58,7 +58,7 @@ export async function handleSlotsLeased({
 
   if (fundAddress) {
     console.info(`handleSlotsLeased update - parachain ${paraId} from Started to Won status`);
-    await ensureFund(paraId.toNumber(), store, {
+    await ensureFund(paraId.toNumber(), store,block, {
       status: CrowdloanStatus.WON,
       wonAuctionId: curAuction.id,
       leaseExpiredBlock: curAuction.leaseEnd,

@@ -1,3 +1,4 @@
+import { SubstrateBlock } from '@subsquid/hydra-common';
 import { apiService } from './api';
 import { CrowdloanReturn, ParachainReturn } from './types';
 
@@ -34,9 +35,10 @@ export const fetchParachain = async (paraId: number): Promise<ParachainReturn | 
   return parachain as ParachainReturn | null;
 };
 
-export const fetchCrowdloan = async (paraId: number): Promise<CrowdloanReturn | null> => {
+export const fetchCrowdloan = async (paraId: number,  block: SubstrateBlock,): Promise<CrowdloanReturn | null> => {
   const api = await  apiService();
-  const fund = await api.query.crowdloan.funds(paraId);
+  // Data may get pruned, so need to specify block hash
+  const fund = await api.query.crowdloan.funds.at(block.hash, paraId);
 
   return fund.toJSON() as unknown as CrowdloanReturn | null;
 };
