@@ -15,11 +15,6 @@ type Auction @entity {
   parachainLeases: [ParachainLeases] @derivedFrom(field: "auction")
 }
 
-type Account @entity {
-  id: ID!
-  isFunded: Boolean!
-}
-
 type Parachain @entity {
   id: ID!
   paraId: Int!

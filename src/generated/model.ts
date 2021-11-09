@@ -1,5 +1,4 @@
 export * from "./model/auction.model"
-export * from "./model/account.model"
 export * from "./model/parachain.model"
 export * from "./model/crowdloan.model"
 export * from "./model/auctionParachain.model"
