@@ -1,5 +1,5 @@
 import { EventContext, StoreContext } from "@subsquid/hydra-common";
-import { IgnoreParachainIds } from "../constants";
+import { ChronicleKey, IgnoreParachainIds } from "../constants";
 import { Auction, Chronicle, Parachain, ParachainLeases } from "../generated/model";
 import { Slots } from "../types";
 import { apiService } from "./helpers/api";
@@ -104,6 +104,7 @@ export async function handleSlotsLeased({
   console.info(` ------ [Slots] [Leased] Event Completed.`);
 }
 
+// Finished Review
 export async function handleNewLeasePeriod({
   store,
   event,
@@ -115,13 +116,12 @@ export async function handleNewLeasePeriod({
   const api = await apiService();
   const leasePeriod = api.consts.slots.leasePeriod.toJSON() as number;
   const timestamp: number = Math.round(block.timestamp / 1000);
-  
-  let chronicle = await getOrCreate(store, Chronicle, "ChronicleKey");
-  chronicle.curLease = leaseIdx.toNumber();
-  chronicle.curLeaseStart = timestamp;
-  chronicle.curLeaseEnd = timestamp + leasePeriod - 1;
+  let newValue = {
+curLease: leaseIdx.toNumber(),
+curLeaseStart: timestamp,
+curLeaseEnd: timestamp + leasePeriod - 1
+}
 
-  await store.save(chronicle);
-
+  await getOrUpdate(store,Chronicle,ChronicleKey,newValue)
   console.info(` ------ [Slots] [NewLeasePeriod] Event Completed.`);
 }
