@@ -13,14 +13,12 @@ export async function handleCrowdloanContributed({
   console.info(` ------ [Crowdloan] [Contributed] Event.`);
 
   const blockNum = block.height;
-  const [contributorId, fundIdx, amount] = new Crowdloan.ContributedEvent(
-    event
-  ).params;
+  const [contributorId, fundIdx, amount] = new Crowdloan.ContributedEvent(event).params;
   const amtValue = typeof amount === "string" ? parseNumber(amount) : amount;
   const { id, paraId } = await ensureParachain(fundIdx.toNumber(), store);
 
   const crowdLoanData = await ensureFund(paraId, store);
-  const parachainId = (await getParachainId(paraId)) as any;
+  const parachainId = await getParachainId(paraId) as any;
   const parachain = await store.find(Parachain, {
     where: { id: parachainId },
     take: 1,
@@ -62,8 +60,8 @@ export async function handleCrowdloanCreated({
   event,
   block
 }: EventContext & StoreContext): Promise<void> {
-  console.info(` ------ [Crowdloan] [Createdevent] Event.`);
+  console.info(` ------ [Crowdloan] [Created] Event.`);
   const [fundId] = new Crowdloan.DissolvedEvent(event).params;
   await ensureParachain(fundId.toNumber(), store);
-  const fund = await ensureFund(fundId.toNumber(), store, { blockNum: block.height });
+  await ensureFund(fundId.toNumber(), store, { blockNum: block.height });
 };

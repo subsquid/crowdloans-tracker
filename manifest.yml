@@ -31,10 +31,10 @@ mappings:
       handler: handleAuctionStarted
     - event: auctions.AuctionClosed
       handler: handleAuctionClosed
+    - event: auctions.WinningOffset
+      handler: handleAuctionWinningOffset
 
     #### not working events
-    - event: auctions.WinningOffset
-      handler: handleBidAccepted
     # - event: auctions.BidAccepted
     #   handler: handleBidAccepted
     # - event: auctions.Reserved
