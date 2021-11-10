@@ -1,16 +1,55 @@
 version: '4.0'
-description: Test manifest
+description: Auctions manifest
 
 typegen:
   outDir: src/types
   events:
-    - balances.Transfer
+    - registrar.Registered
+    - crowdloan.Created
+    - auctions.AuctionStarted
+    - auctions.AuctionClosed
+    - auctions.WinningOffset
+    - auctions.BidAccepted
+    - auctions.Reserved
+    - auctions.Unreserved
+    - auctions.HandleBidResult
+    - slots.Leased
+    - slots.NewLeasePeriod
+    - crowdloan.Contributed
+    - crowdloan.Dissolved
 
 mappings:
   mappingsModule: lib/mappings
   eventHandlers:
-    - event: balances.Transfer
-      handler: balancesTransfer
+    - event: registrar.Registered
+      handler: handleParachainRegistered
+    - event: crowdloan.Created
+      handler: handleCrowdloanCreated
+    - event: auctions.AuctionStarted
+      handler: handleAuctionStarted
+    - event: auctions.AuctionClosed
+      handler: handleAuctionClosed
+    - event: auctions.WinningOffset
+      handler: handleAuctionWinningOffset
+    - event: auctions.BidAccepted
+      handler: handleBidAccepted
+    - event: auctions.Reserved
+      handler: handlerEmpty
+    - event: auctions.Unreserved
+      handler: handlerEmpty
+    - event: auctions.HandleBidResult
+      handler: handlerEmpty
+    - event: slots.Leased
+      handler: handleSlotsLeased
+    - event: slots.NewLeasePeriod
+      handler: handleNewLeasePeriod
+    - event: crowdloan.Contributed
+      handler: handleCrowdloanContributed
+    - event: crowdloan.Dissolved
+      handler: handleCrowdloanDissolved
+
+
   extrinsicHandlers:
   preBlockHooks:
   postBlockHooks:
+  # range: '[ 7513580, ]' # Auction startednewleas
