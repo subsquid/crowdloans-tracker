@@ -7,7 +7,7 @@ import { ensureFund, ensureParachain, getOrCreate, getOrUpdate, isFundAddress } 
 import { CrowdloanStatus } from "../constants";
 import { parseNumber } from "./helpers/utils";
 
-//reviewed
+
 export async function handleSlotsLeased({
   store,
   event,
@@ -105,7 +105,7 @@ export async function handleSlotsLeased({
   console.info(` ------ [Slots] [Leased] Event Completed.`);
 }
 
-// Finished Review
+
 export async function handleNewLeasePeriod({
   store,
   event,

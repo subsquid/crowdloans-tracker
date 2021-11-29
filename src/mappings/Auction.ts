@@ -7,7 +7,6 @@ import { ensureFund, ensureParachain, get, getByAuctionParachain, getByAuctions,
 
 export async function handlerEmpty () {};
 
-// reviewed
 export async function handleAuctionStarted({
   store,
   event,
@@ -47,7 +46,6 @@ export async function handleAuctionStarted({
   console.info(` ------ [Auctions] [AuctionStarted] Event Completed.`);
 }
 
-//reviewd
 export async function handleAuctionClosed({
   store,
   event,
@@ -79,7 +77,6 @@ export async function handleAuctionClosed({
   console.info(` ------ [Auctions] [AuctionClosed] Event Completed.`);
 }
 
-//reviewed
 export async function handleAuctionWinningOffset ({
   store,
   event,
@@ -159,10 +156,9 @@ const markParachainLeases = async (
 };
 
 /**
- *
- * @param substrateEvent SubstrateEvent
  * Create Bid record and create auction parachain record if not exists already
  * Skip winning bid before we have query abilities
+ * @param substrateEvent SubstrateEvent
  */
 export const handleBidAccepted = async ({
   store,
@@ -254,90 +250,3 @@ where: {id:ChronicleKey}
   }
 };
 
-// export async function handleBidAccepted({
-//   store,
-//   event,
-//   block,
-// }: EventContext & StoreContext): Promise<void> {
-//   console.info(` ------ [Auctions] [BidAccepted] Event Started.`);
-  
-  
-  
-  
-  // const { timestamp: createdAt, height: blockNum, id: blockId  } = block;
-  // const [from, paraId, amount, firstSlot, lastSlot] = new Auctions.BidAcceptedEvent(event).params;
-  // const api = await apiService();
-  // const auctionId = (await api.query.auctions.auctionCounter()).toJSON() as number;
-
-
-  // // const auction = await getOrCreate(store, Auction, auctionId.toString());
-  // // const parachainId = (await getParachainId(paraId.toNumber())) as any;
-  // // const parachain = await ensureParachain(paraId.toNumber(), store);
-  // const { id: parachainId } = await ensureParachain(paraId.toNumber(), store);
-
-  // const isFund = await isFundAddress(from.toHex());
-  // const fund = await ensureFund(paraId.toNumber(), store);
-  // const fundIdAlpha = await getLatestCrowdloanId(paraId.toString(), store);
-
-
-  // const parachain = await store.find(Parachain, {
-  //   where: { id: parachainId },
-  //   take: 1,
-  // });
-
-  // const parachain2 = await store.find(Parachain, {
-  //   where: { id: paraId },
-  //   take: 1,
-  // });
-
-  // // const auction = await store.find(Auction, {
-  // //   where: { id: auctionId.toString() },
-  // //   take: 1,
-  // // });
-
-  // const auctionData = await getByAuctions(store, auctionId.toString()) as Auction[];
-  // if(auctionData.length != 0) {
-
-  //   let auction = auctionData[0]
-  
-  //   const bid = new Bid({
-  //     id: `${blockNum}-${from}-${parachainId}-${firstSlot}-${lastSlot}`,
-  //     auction,
-  //     blockNum,
-  //     winningAuction: auctionId,
-  //     parachain: parachain[0],
-  //     isCrowdloan: isFund,
-  //     amount: BigInt(amount.toString()),
-  //     firstSlot: firstSlot.toNumber(),
-  //     lastSlot: lastSlot.toNumber(),
-  //     createdAt: new Date(createdAt),
-  //     fund,
-  //     bidder: isFund ? null : from.toHex(),
-  //   });
-  
-  //   console.log(" bid ::: ",bid)
-  //   /**
-  //    * ToDo: Getting error :-
-  //             name: QueryFailedError, message: insert or update on table "bid" violates foreign key constraint "FK_9e594e5a61c0f3cb25679f6ba8d", 
-  //             stack: QueryFailedError: insert or update on table "bid" violates foreign key constraint "FK_9e594e5a61c0f3cb25679f6ba8d"
-  //    *  */ 
-  //   await store.save(bid);
-  //   // const auctionParaId = `${paraId}-${firstSlot}-${lastSlot}-${auctionId}`;
-  //   // const auctionPara = await store.get(AuctionParachain,{
-  //   //   where: { auctionParaId }
-  //   // });
-  //   // if (!auctionPara) {
-  //   //   await store.save(new AuctionParachain({
-  //   //     id: auctionParaId,
-  //   //     firstSlot: firstSlot.toNumber(),
-  //   //     lastSlot: lastSlot.toNumber(),
-  //   //     createdAt: new Date(block.timestamp),
-  //   //     blockNum: block.height
-  //   //   }))
-  //   // }
-  // } else {
-  //   console.log(` ------ [Auctions] [BidAccepted] Event No auction found.`);
-  // }
-
-  // console.info(` ------ [Auctions] [BidAccepted] Event Completed.`);
-// }
